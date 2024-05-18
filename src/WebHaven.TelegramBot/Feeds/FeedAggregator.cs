@@ -16,7 +16,7 @@ public class FeedAggregator(FeedRepository repo)
         List<PostSummary> summaries = [];
         foreach (var post in feed.Items)
         {
-            var summary = new PostSummary(url, post.Link, post.Title, post.PublishingDateString, post.Description);
+            var summary = new PostSummary(feed.Link, post.Link, post.Title, post.PublishingDateString, post.Description);
             summaries.Add(summary);
         }
         return ImmutableArray.Create(summaries.ToArray());

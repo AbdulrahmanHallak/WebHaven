@@ -4,16 +4,6 @@ public record PostSummary(string BlogUri, string Uri, string Title, string Date,
 {
     public override string ToString()
     {
-        return
-        $"""
-            {BlogUri}
-
-            {Title}
-            {Date}
-
-            {Description}
-
-            {Uri}
-        """;
+        return $"{BlogUri}\n\n{Title}\n\n\n{Description}\n\n\n{Date}\n{Uri}";
     }
 };
