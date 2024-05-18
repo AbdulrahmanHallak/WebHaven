@@ -1,3 +1,19 @@
 namespace WebHaven.TelegramBot.Feeds;
 
-public record PostSummary(string BlogUri, string Uri, string Title, string Date, string Description);
+public record PostSummary(string BlogUri, string Uri, string Title, string Date, string Description)
+{
+    public override string ToString()
+    {
+        return
+        $"""
+            {BlogUri}
+
+            {Title}
+            {Date}
+
+            {Description}
+
+            {Uri}
+        """;
+    }
+};

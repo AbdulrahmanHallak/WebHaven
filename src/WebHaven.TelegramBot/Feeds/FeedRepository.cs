@@ -40,5 +40,5 @@ public class FeedRepository
         await File.WriteAllTextAsync(_storPath, json);
     }
 
-    private record struct Site(string Url);
+    public record struct Site(string Url);
 }
