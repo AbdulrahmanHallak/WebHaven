@@ -54,6 +54,9 @@ public class UpdateHandler(ITelegramBotClient bot, Update update,
     }
     private async Task HandleButton(CallbackQuery query, CancellationToken token)
     {
+        await bot.DeleteMessageAsync(query.From.Id, query.Message!.MessageId, cancellationToken: token);
+        await bot.SendTextMessageAsync(query.From.Id, "Processing...", cancellationToken: token);
+
         var posts = await feedService.GetFeed(query.Data!);
 
         foreach (var post in posts)
