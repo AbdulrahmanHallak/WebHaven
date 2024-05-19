@@ -22,14 +22,14 @@ public class FeedAggregator(FeedRepository repo)
         return ImmutableArray.Create(summaries.ToArray());
     }
 
-    public async Task<Post> GetPost(string url, string id)
+    public async Task<Post> GetPost(string feedUrl, string postId)
     {
-        var exist = await repo.FeedExists(url);
+        var exist = await repo.FeedExists(feedUrl);
         if (exist is false)
             throw new InvalidOperationException("The feed is not in the data store");
 
-        var feed = await FeedReader.ReadAsync(url);
-        var post = feed.Items.Where(p => p.Id == id).SingleOrDefault()
+        var feed = await FeedReader.ReadAsync(feedUrl);
+        var post = feed.Items.Where(p => p.Id == postId).SingleOrDefault()
         ?? throw new InvalidOperationException("Invalid id");
 
         return new Post(post.Link, post.Title, post.PublishingDateString, post.Description, post.Content);

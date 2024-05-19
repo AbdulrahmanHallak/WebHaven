@@ -13,32 +13,38 @@ public class FeedRepository
         _storPath = storePath;
     }
 
-    public async Task<bool> FeedExists(string feed)
+    public async Task<bool> FeedExists(string url)
     {
         var json = await File.ReadAllTextAsync(_storPath);
-        var feeds = JsonSerializer.Deserialize<Site[]>(json);
-        if (!feeds!.Contains(new Site(feed)))
+        var feeds = JsonSerializer.Deserialize<Feed[]>(json);
+        if (feeds is null)
             return false;
 
-        return true;
+        var exists = feeds.Where(x => x.Url.Equals(url));
+        if (exists.Any())
+            return true;
+
+        return false;
     }
 
-    public async Task<ImmutableArray<string>> ReadFeeds()
+    public async Task<ImmutableArray<Feed>> ReadFeeds()
     {
         var json = await File.ReadAllTextAsync(_storPath);
-        var feeds = JsonSerializer.Deserialize<Site[]>(json);
-        return ImmutableArray.Create(feeds!.Select(x => x.Url).ToArray());
+        var feeds = JsonSerializer.Deserialize<Feed[]>(json);
+        // TODO: Handle null
+        return ImmutableArray.Create(feeds!.ToArray());
     }
 
-    public async Task AddFeed(string feed)
+    public async Task AddFeed(string name, string url)
     {
         var feeds = await ReadFeeds();
-        var newStore = feeds.Where(x => x is not null).ToList();
-        newStore.Add(feed);
+        // prevent duplicates
+        var exists = feeds.Where(x => x.Url.Equals(url));
+        if (exists.Any())
+            return;
 
-        var json = JsonSerializer.Serialize(newStore.Select(x => new Site(x)).ToArray());
+        var newStore = feeds.Add(new Feed(name, url));
+        var json = JsonSerializer.Serialize(newStore);
         await File.WriteAllTextAsync(_storPath, json);
     }
-
-    public record struct Site(string Url);
 }

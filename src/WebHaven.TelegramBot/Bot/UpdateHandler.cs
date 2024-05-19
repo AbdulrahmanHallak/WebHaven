@@ -104,10 +104,10 @@ public class UpdateHandler(ITelegramBotClient bot, Update update,
         // To display them in two columns order.
         for (int i = 0; i < feeds.Length; i += 2)
         {
-            List<InlineKeyboardButton> pair = [InlineKeyboardButton.WithCallbackData(feeds[i])];
+            List<InlineKeyboardButton> pair = [InlineKeyboardButton.WithCallbackData(feeds[i].Name)];
             if (i + 1 < feeds.Length)
             {
-                pair.Add(InlineKeyboardButton.WithCallbackData(feeds[i + 1]));
+                pair.Add(InlineKeyboardButton.WithCallbackData(feeds[i + 1].Name));
             }
             result.Add(pair);
         }
