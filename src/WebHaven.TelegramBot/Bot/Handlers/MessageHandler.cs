@@ -43,12 +43,15 @@ public class MessageHandler(ITelegramBotClient bot, FeedRepository repo, FeedAgg
         if (feed is null)
             return;
 
+        await bot.SendTextMessageAsync(userId, "Processing...", replyMarkup: new ReplyKeyboardRemove(), cancellationToken: token);
+
         var posts = await service.GetFeed(feed.Url);
         foreach (var post in posts)
-            await bot.SendTextMessageAsync(userId, RemoveUnsupportedTags(post.ToString()), cancellationToken: token, parseMode: ParseMode.Html);
-
-        await bot.SendTextMessageAsync(userId, "Enjoy", replyMarkup: new ReplyKeyboardRemove(), cancellationToken: token);
-
+        {
+            var markup = new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData("Get Post", post.Id));
+            await bot.SendTextMessageAsync(userId, RemoveUnsupportedTags(post.ToString()),
+            cancellationToken: token, parseMode: ParseMode.Html, replyMarkup: markup);
+        }
     }
     private async Task HandleCommand(long chatId, string command, CancellationToken token)
     {

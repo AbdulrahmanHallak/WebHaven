@@ -10,15 +10,12 @@ public class ButtonHandler(ITelegramBotClient bot, FeedAggregator service)
 {
     public async Task Handle(CallbackQuery query, CancellationToken token)
     {
-        await bot.DeleteMessageAsync(query.From.Id, query.Message!.MessageId, cancellationToken: token);
         await bot.SendTextMessageAsync(query.From.Id, "Processing...", cancellationToken: token);
 
-        var posts = await service.GetFeed(query.Data!);
 
-        foreach (var post in posts)
-        {
-            await bot.SendTextMessageAsync(query.Message!.Chat.Id, RemoveUnsupportedTags(post.ToString()), cancellationToken: token, parseMode: ParseMode.Html);
-        }
+        var post = await service.GetPost(query.Data!);
+
+        await bot.SendTextMessageAsync(query.Message!.Chat.Id, RemoveUnsupportedTags(post.ToString()), cancellationToken: token, parseMode: ParseMode.Html);
 
         static string RemoveUnsupportedTags(string input)
         {
@@ -27,7 +24,6 @@ public class ButtonHandler(ITelegramBotClient bot, FeedAggregator service)
             var doc = new HtmlDocument();
             doc.LoadHtml(input);
 
-            // Remove HTML comments
             foreach (var comment in doc.DocumentNode.SelectNodes("//comment()") ?? Enumerable.Empty<HtmlNode>())
             {
                 comment.ParentNode.RemoveChild(comment);
