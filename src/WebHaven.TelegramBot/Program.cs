@@ -1,6 +1,6 @@
 ﻿using Telegram.Bot;
 using WebHaven.TelegramBot.Bot;
-using WebHaven.TelegramBot.Feeds;
+using WebHaven.TelegramBot.Bot.Handlers;
 
 namespace WebHaven.TelegramBot;
 
@@ -11,19 +11,12 @@ class Program
         var bot = new TelegramBotClient("");
         var cts = new CancellationTokenSource();
         bot.StartReceiving(
-            async (botClient, update, cancellationToken) =>
-            {
-                var path = Path.Combine(Environment.CurrentDirectory, "Feeds", "DataStore.json");
-                var repo = new FeedRepository(path);
-                var service = new FeedAggregator(repo);
-                var handler = new UpdateHandler(bot, update, cancellationToken,service, repo);
-                await handler.HandleUpdate();
-            },
+            UpdateHandler.HandleUpdate
+            ,
             async (botClient, exception, cancellationToken) =>
             {
-                var handler = new ErrorHandlers(bot, exception, cancellationToken);
-                handler.LogError();
-                await Task.CompletedTask;
+                var handler = new ErrorHandler(botClient, exception, cancellationToken);
+                await handler.Handle();
             },
             null,
             cts.Token
