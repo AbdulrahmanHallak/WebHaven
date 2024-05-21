@@ -12,6 +12,8 @@ public class ButtonHandler(ITelegramBotClient bot, FeedAggregator service)
     {
         await bot.SendTextMessageAsync(query.From.Id, "Processing...", cancellationToken: token);
 
+        await bot.SendTextMessageAsync(query.From.Id, "Getting post is currently under development :)", cancellationToken: token);
+        return;
 
         var post = await service.GetPost(query.Data!);
 

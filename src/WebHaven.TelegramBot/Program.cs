@@ -1,30 +1,28 @@
-﻿using Telegram.Bot;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using WebHaven.TelegramBot.Bot;
-using WebHaven.TelegramBot.Bot.Handlers;
 
 namespace WebHaven.TelegramBot;
 
 class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
-        var bot = new TelegramBotClient("");
-        var cts = new CancellationTokenSource();
-        bot.StartReceiving(
-            UpdateHandler.HandleUpdate
-            ,
-            async (botClient, exception, cancellationToken) =>
-            {
-                var handler = new ErrorHandler(botClient, exception, cancellationToken);
-                await handler.Handle();
-            },
-            null,
-            cts.Token
-        );
-
-        Console.WriteLine("Start listening for updates. Press enter to stop");
-        Console.ReadLine();
-
-        cts.Cancel();
+        var builder = Host.CreateDefaultBuilder(args)
+                    .ConfigureServices((context, service) =>
+                    {
+                        var botConfig = new BotConfigs();
+                        context.Configuration.GetSection(BotConfigs.ConfigurationSection).Bind(botConfig);
+                        service.AddSingleton(botConfig);
+                        service.AddHostedService<BotHostedService>();
+                    }).Build();
+        await builder.RunAsync();
     }
 }
+
+public record BotConfigs
+{
+    public const string ConfigurationSection = "TelegramConfiguration";
+    public string Token { get; set; } = default!;
+};
