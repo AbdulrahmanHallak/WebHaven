@@ -9,6 +9,15 @@ namespace WebHaven.TelegramBot.Bot.Handlers;
 
 public class MessageHandler(ITelegramBotClient bot, FeedRepository repo, FeedAggregator service)
 {
+    //! ReplyKeyboardMarkup sends buttons as text, allowing users to bypass the keyboard.
+    //! For instance, if a button "Hello" triggers the bot to respond "Hi",
+    //! users can simply type "Hello" manually and still get "Hi".
+    //! We can solve by introducing state. The state can either be in code
+    //! or we send it to user and keep the code stateless.
+    //! The latter is picked by introducing Unicode Invisible characters.
+    //! By adding invisible characters to button text,
+    //! the bot can check for these characters to ensure responses only to valid button presses.
+    //! Please use invisible character for each keyboard you introduce.
     private const string BlogsKeyboard = "\u00AD";
     public async Task Handle(Message msg, CancellationToken token)
     {
@@ -40,40 +49,7 @@ public class MessageHandler(ITelegramBotClient bot, FeedRepository repo, FeedAgg
 
         await bot.SendTextMessageAsync(userId, "Enjoy", replyMarkup: new ReplyKeyboardRemove(), cancellationToken: token);
 
-        static string RemoveUnsupportedTags(string input)
-        {
-            HashSet<string> SupportedTags = ["b", "strong", "i", "em", "u", "ins", "s", "strike", "del", "code", "pre", "a"];
-
-            var doc = new HtmlDocument();
-            doc.LoadHtml(input);
-
-            // Remove HTML comments
-            foreach (var comment in doc.DocumentNode.SelectNodes("//comment()") ?? Enumerable.Empty<HtmlNode>())
-            {
-                comment.ParentNode.RemoveChild(comment);
-            }
-
-            var nodes = new Stack<HtmlNode>(doc.DocumentNode.Descendants());
-            while (nodes.Count > 0)
-            {
-                var node = nodes.Pop();
-
-                if (node.NodeType == HtmlNodeType.Element && !SupportedTags.Contains(node.Name.ToLower()))
-                {
-                    var parentNode = node.ParentNode;
-                    foreach (var child in node.ChildNodes.ToList())
-                    {
-                        parentNode.InsertBefore(child, node);
-                    }
-                    parentNode.RemoveChild(node);
-                }
-            }
-
-            return doc.DocumentNode.InnerHtml;
-        }
-
     }
-
     private async Task HandleCommand(long chatId, string command, CancellationToken token)
     {
         switch (command)
@@ -88,6 +64,38 @@ public class MessageHandler(ITelegramBotClient bot, FeedRepository repo, FeedAgg
                 break;
         }
     }
+    private static string RemoveUnsupportedTags(string input)
+    {
+        HashSet<string> SupportedTags = ["b", "strong", "i", "em", "u", "ins", "s", "strike", "del", "code", "pre", "a"];
+
+        var doc = new HtmlDocument();
+        doc.LoadHtml(input);
+
+        // Remove HTML comments
+        foreach (var comment in doc.DocumentNode.SelectNodes("//comment()") ?? Enumerable.Empty<HtmlNode>())
+        {
+            comment.ParentNode.RemoveChild(comment);
+        }
+
+        var nodes = new Stack<HtmlNode>(doc.DocumentNode.Descendants());
+        while (nodes.Count > 0)
+        {
+            var node = nodes.Pop();
+
+            if (node.NodeType == HtmlNodeType.Element && !SupportedTags.Contains(node.Name.ToLower()))
+            {
+                var parentNode = node.ParentNode;
+                foreach (var child in node.ChildNodes.ToList())
+                {
+                    parentNode.InsertBefore(child, node);
+                }
+                parentNode.RemoveChild(node);
+            }
+        }
+
+        return doc.DocumentNode.InnerHtml;
+    }
+
     private async Task<ReplyKeyboardMarkup> CreateFeedMarkUpSelector()
     {
         var feeds = await repo.ReadFeeds();
