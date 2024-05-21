@@ -14,8 +14,9 @@ public class UpdateHandler
         switch (update.Type)
         {
             case UpdateType.Message:
+            var repo = new FeedRepository(path);
                 var msgHandler = new MessageHandler(
-                                bot, new FeedRepository(path));
+                                bot, repo, new FeedAggregator(repo));
 
                 await msgHandler.Handle(update.Message!, token);
                 break;
