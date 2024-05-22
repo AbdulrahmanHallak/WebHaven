@@ -43,8 +43,24 @@ public class FeedRepository
         if (exists.Any())
             return;
 
-        var newStore = feeds.Add(new Feed(name, url));
+        var newStore = feeds.Add(new Feed(name, url, DateTime.Now));
         var json = JsonSerializer.Serialize(newStore);
         await File.WriteAllTextAsync(_storPath, json);
+    }
+
+    public async Task UpdateLatestPostDate(string feedUrl, DateTime date)
+    {
+        var json = await File.ReadAllTextAsync(_storPath);
+        var feeds = JsonSerializer.Deserialize<Feed[]>(json);
+
+        for (int i = 0; i < feeds.Length; i++)
+        {
+            if (feeds[i].Url.Equals(feedUrl) && feeds[i].LatestPostDate < date)
+            {
+                var updatedFeed = feeds[i] with { LatestPostDate = date };
+                feeds[i] = updatedFeed;
+                break;
+            }
+        }
     }
 }
