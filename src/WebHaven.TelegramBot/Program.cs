@@ -19,6 +19,8 @@ class Program
                         service.AddSingleton(botConfig);
                         service.AddSingleton<ITelegramBotClient, TelegramBotClient>(_ => new TelegramBotClient(botConfig.Token));
                         service.AddHostedService<BotHostedService>();
+                        service.AddScoped<FeedRepository>();
+                        service.AddScoped<FeedAggregator>();
                     }).Build();
         await builder.RunAsync();
     }
