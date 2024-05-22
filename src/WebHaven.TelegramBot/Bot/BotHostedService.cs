@@ -4,11 +4,10 @@ using WebHaven.TelegramBot.Bot.Handlers;
 
 namespace WebHaven.TelegramBot.Bot;
 
-public class BotHostedService(BotConfigs config) : BackgroundService
+public class BotHostedService(ITelegramBotClient bot) : BackgroundService
 {
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var bot = new TelegramBotClient(config.Token);
         bot.ReceiveAsync(
             UpdateHandler.HandleUpdate
             ,

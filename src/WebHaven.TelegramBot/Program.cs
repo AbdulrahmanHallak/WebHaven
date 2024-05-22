@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Telegram.Bot;
 using WebHaven.TelegramBot.Bot;
+using WebHaven.TelegramBot.Feeds;
 
 namespace WebHaven.TelegramBot;
 
@@ -15,6 +17,7 @@ class Program
                         var botConfig = new BotConfigs();
                         context.Configuration.GetSection(BotConfigs.ConfigurationSection).Bind(botConfig);
                         service.AddSingleton(botConfig);
+                        service.AddSingleton<ITelegramBotClient, TelegramBotClient>(_ => new TelegramBotClient(botConfig.Token));
                         service.AddHostedService<BotHostedService>();
                     }).Build();
         await builder.RunAsync();
