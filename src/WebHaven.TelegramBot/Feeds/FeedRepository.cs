@@ -42,7 +42,7 @@ public class FeedRepository
         var exists = feeds.Where(x => x.Url.Equals(url));
         if (exists.Any())
             return;
-
+        // TODO: validate feed
         var newStore = feeds.Add(new Feed(name, url, DateTime.Now));
         var json = JsonSerializer.Serialize(newStore);
         await File.WriteAllTextAsync(_storPath, json);
