@@ -10,19 +10,19 @@ public class UpdateHandler
 {
     public static async Task HandleUpdate(ITelegramBotClient bot, Update update, CancellationToken token, ConnectionString connString)
     {
-        var path = Path.Combine(Environment.CurrentDirectory, "Feeds", "DataStore.json");
+        // Singleton
+        var feedAgg = new FeedAggregator();
+
         switch (update.Type)
         {
             case UpdateType.Message:
                 var repo = new FeedRepository(connString);
-                var msgHandler = new MessageHandler(
-                                bot, repo, new FeedAggregator(repo));
+                var msgHandler = new MessageHandler(bot, repo, feedAgg);
+
                 await msgHandler.Handle(update.Message!, token);
                 break;
             case UpdateType.CallbackQuery:
-                var btnHandler = new ButtonHandler(
-                                bot, new FeedAggregator(
-                                        new FeedRepository(path)));
+                var btnHandler = new ButtonHandler(bot, feedAgg);
 
                 await btnHandler.Handle(update.CallbackQuery!, token);
                 break;
