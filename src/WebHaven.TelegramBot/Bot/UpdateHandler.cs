@@ -8,16 +8,15 @@ namespace WebHaven.TelegramBot.Bot;
 
 public class UpdateHandler
 {
-    public static async Task HandleUpdate(ITelegramBotClient bot, Update update, CancellationToken token)
+    public static async Task HandleUpdate(ITelegramBotClient bot, Update update, CancellationToken token, ConnectionString connString)
     {
         var path = Path.Combine(Environment.CurrentDirectory, "Feeds", "DataStore.json");
         switch (update.Type)
         {
             case UpdateType.Message:
-            var repo = new FeedRepository(path);
+                var repo = new FeedRepository(connString);
                 var msgHandler = new MessageHandler(
                                 bot, repo, new FeedAggregator(repo));
-
                 await msgHandler.Handle(update.Message!, token);
                 break;
             case UpdateType.CallbackQuery:

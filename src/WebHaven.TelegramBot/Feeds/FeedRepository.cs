@@ -1,66 +1,47 @@
 using System.Collections.Immutable;
-using System.Text.Json;
+using Dapper;
+using Npgsql;
 
 namespace WebHaven.TelegramBot.Feeds;
 
-public class FeedRepository
+public class FeedRepository(ConnectionString connString)
 {
-    private readonly string _storPath;
-    public FeedRepository(string storePath)
-    {
-        if (!File.Exists(storePath))
-            throw new InvalidOperationException("The data store does not exist or the provided path is invalid");
-        _storPath = storePath;
-    }
-
     public async Task<bool> FeedExists(string url)
     {
-        var json = await File.ReadAllTextAsync(_storPath);
-        var feeds = JsonSerializer.Deserialize<Feed[]>(json);
-        if (feeds is null)
+        using var db = new NpgsqlConnection(connString);
+
+        var sql = "SELECT EXISTS(SELECT 1 FROM feeds WHERE url = @url)";
+        bool exists = await db.ExecuteScalarAsync<bool>(sql, new { url });
+        if (!exists)
             return false;
 
-        var exists = feeds.Where(x => x.Url.Equals(url));
-        if (exists.Any())
-            return true;
-
-        return false;
+        return true;
     }
 
     public async Task<ImmutableArray<Feed>> ReadFeeds()
     {
-        var json = await File.ReadAllTextAsync(_storPath);
-        var feeds = JsonSerializer.Deserialize<Feed[]>(json);
-        // TODO: Handle null
-        return ImmutableArray.Create(feeds!.ToArray());
+        var sql = "SELECT * FROM feeds";
+        using var db = new NpgsqlConnection(connString);
+        var feeds = await db.QueryAsync<Feed>(sql);
+
+        return ImmutableArray.Create(feeds.ToArray());
     }
 
     public async Task AddFeed(string name, string url)
     {
-        var feeds = await ReadFeeds();
-        // prevent duplicates
-        var exists = feeds.Where(x => x.Url.Equals(url));
-        if (exists.Any())
+        var exists = await FeedExists(url);
+        if (exists)
             return;
         // TODO: validate feed
-        var newStore = feeds.Add(new Feed(name, url, DateTime.Now));
-        var json = JsonSerializer.Serialize(newStore);
-        await File.WriteAllTextAsync(_storPath, json);
+        var sql = "INSERT INTO feeds(url, name, latest_post_date) VALUES(@url, @name, now())";
+        using var db = new NpgsqlConnection(connString);
+        _ = await db.ExecuteAsync(sql, new { url, name });
     }
 
     public async Task UpdateLatestPostDate(string feedUrl, DateTime date)
     {
-        var json = await File.ReadAllTextAsync(_storPath);
-        var feeds = JsonSerializer.Deserialize<Feed[]>(json);
-
-        for (int i = 0; i < feeds.Length; i++)
-        {
-            if (feeds[i].Url.Equals(feedUrl) && feeds[i].LatestPostDate < date)
-            {
-                var updatedFeed = feeds[i] with { LatestPostDate = date };
-                feeds[i] = updatedFeed;
-                break;
-            }
-        }
+        var sql = "UPDATE feeds SET latest_post_date = @date WHERE url = @feedUrl";
+        using var db = new NpgsqlConnection(connString);
+        _ = await db.ExecuteAsync(sql, new { feedUrl, date });
     }
 }

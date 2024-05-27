@@ -1,2 +1,8 @@
 namespace WebHaven.TelegramBot.Feeds;
-public record Feed(string Name, string Url, DateTime LatestPostDate);
+public class Feed
+{
+    public required int Id { get; set; }
+    public required string Name { get; set; }
+    public required string Url { get; set; }
+    public required DateTime LatestPostDate { get; set; }
+};
