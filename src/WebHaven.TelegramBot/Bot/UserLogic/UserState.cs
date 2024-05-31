@@ -6,8 +6,8 @@ namespace WebHaven.TelegramBot.Bot.UserLogic;
 public enum UserState
 {
     MainMenu,
-    EnteringFeedName,
-    EnteringFeedUrl
+    AddingFeed,
+    GettingFeed
 }
 
 public static class Ext
