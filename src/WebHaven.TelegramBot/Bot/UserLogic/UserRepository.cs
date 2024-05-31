@@ -13,15 +13,20 @@ public class UserRepository(ConnectionString connString)
             return;
 
         var addSql = "INSERT INTO users VALUES(@userId, @state)";
-        _ = await db.ExecuteAsync(addSql, new { userId, state = UserState.MainMenu });
+        _ = await db.ExecuteAsync(addSql, new { userId, state = nameof(UserState.MainMenu) });
     }
-    public async Task<UserState> GetState(long userId)
+    public async Task<UserState?> GetState(long userId)
     {
         var sql = "SELECT state FROM users WHERE id = @userId";
         using var db = new NpgsqlConnection(connString);
-        var state = await db.QuerySingleAsync<UserState>(sql, new { userId });
+        var strState = await db.QuerySingleAsync<string>(sql, new { userId });
+        if (strState is null)
+            return null;
 
-        return state;
+        Enum.TryParse(typeof(UserState), strState, out var state);
+
+        // If strState is not null the parsing must succeed.
+        return (UserState)state!;
     }
 
     public async Task ChangeState(long userId, UserState newState)
