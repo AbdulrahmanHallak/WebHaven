@@ -10,16 +10,6 @@ namespace WebHaven.TelegramBot.Bot.Handlers;
 
 public class MessageHandler(ITelegramBotClient bot, FeedRepository feedRepo, FeedAggregator service, UserRepository userRepo)
 {
-    //! ReplyKeyboardMarkup sends buttons as text, allowing users to bypass the keyboard.
-    //! For instance, if a button "Hello" triggers the bot to respond "Hi",
-    //! users can simply type "Hello" manually and still get "Hi".
-    //! We can solve by introducing state. The state can either be in code
-    //! or we send it to user and keep the code stateless.
-    //! The latter is picked by introducing Unicode Invisible characters.
-    //! By adding invisible characters to button text,
-    //! the bot can check for these characters to ensure responses only to valid button presses.
-    //! Please use invisible character for each keyboard you introduce.
-    private const string BlogsKeyboard = "\u00AD";
     public async Task Handle(Message msg, CancellationToken token)
     {
         User? user = msg.From;
@@ -188,10 +178,10 @@ public class MessageHandler(ITelegramBotClient bot, FeedRepository feedRepo, Fee
         // To display them in two columns order.
         for (int i = 0; i < feeds.Length; i += 2)
         {
-            List<KeyboardButton> pair = [new KeyboardButton($"{BlogsKeyboard} {feeds[i].Name}")];
+            List<KeyboardButton> pair = [new KeyboardButton(feeds[i].Name)];
             if (i + 1 < feeds.Length)
             {
-                pair.Add(new KeyboardButton($"{BlogsKeyboard} {feeds[i + 1].Name}"));
+                pair.Add(new KeyboardButton(feeds[i + 1].Name));
             }
             result.Add(pair);
         }
