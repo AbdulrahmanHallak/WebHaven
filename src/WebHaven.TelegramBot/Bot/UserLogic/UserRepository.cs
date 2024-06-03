@@ -34,7 +34,7 @@ public class UserRepository(ConnectionString connString)
     {
         using var db = new NpgsqlConnection(connString);
         var sql = "UPDATE users SET state = @newState WHERE id = @userId";
-        _ = await db.ExecuteAsync(sql, new { userId, newState });
+        _ = await db.ExecuteAsync(sql, new { userId, newState = nameof(newState) });
     }
 
     public async Task<ImmutableArray<BotUser>> GetUsers()
