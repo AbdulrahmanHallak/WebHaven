@@ -146,15 +146,15 @@ public class MessageHandler(ITelegramBotClient bot, FeedRepository feedRepo, Fee
     }
     private async Task HandleAddFeedCommand(long userId, string message, CancellationToken token)
     {
+        if (message.Equals("Cancel"))
+        {
+            await bot.SendTextMessageAsync(userId, "Cancelling", replyMarkup: new ReplyKeyboardRemove(), cancellationToken: token);
+            return;
+        }
         // Feed format is: Name - Url.
         if (string.IsNullOrWhiteSpace(message) || !message.Contains('-'))
         {
             await bot.SendTextMessageAsync(userId, "Invalid Input please try again", cancellationToken: token);
-            return;
-        }
-        if (message.Equals("Cancel"))
-        {
-            await bot.SendTextMessageAsync(userId, "Cancelling", replyMarkup: new ReplyKeyboardRemove(), cancellationToken: token);
             return;
         }
 
