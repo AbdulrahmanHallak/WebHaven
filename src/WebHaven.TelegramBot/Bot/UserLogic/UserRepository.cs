@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Collections.Immutable;
+using Dapper;
 using Npgsql;
 
 namespace WebHaven.TelegramBot.Bot.UserLogic;
@@ -34,5 +35,14 @@ public class UserRepository(ConnectionString connString)
         using var db = new NpgsqlConnection(connString);
         var sql = "UPDATE users SET state = @newState WHERE id = @userId";
         _ = await db.ExecuteAsync(sql, new { userId, newState });
+    }
+
+    public async Task<ImmutableArray<BotUser>> GetUsers()
+    {
+        var sql = "SELECT * FROM users";
+        using var db = new NpgsqlConnection(connString);
+        var users = await db.QueryAsync<BotUser>(sql);
+
+        return ImmutableArray.Create(users.ToArray());
     }
 }

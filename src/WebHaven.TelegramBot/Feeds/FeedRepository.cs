@@ -18,29 +18,30 @@ public class FeedRepository(ConnectionString connString)
         return true;
     }
 
-    public async Task<ImmutableArray<Feed>> ReadFeeds()
+    public async Task<ImmutableArray<Feed>> ReadFeeds(long userId)
     {
-        var sql = "SELECT * FROM feeds";
+        // TODO: implement union types for when feed is empty.
+        var sql = @"SELECT * FROM feeds WHERE ""userId"" = @userId";
         using var db = new NpgsqlConnection(connString);
-        var feeds = await db.QueryAsync<Feed>(sql);
+        var feeds = await db.QueryAsync<Feed>(sql, new { userId });
 
         return ImmutableArray.Create(feeds.ToArray());
     }
 
-    public async Task AddFeed(string name, string url)
+    public async Task AddFeed(long userId, string name, string url)
     {
         var exists = await FeedExists(url);
         if (exists)
             return;
         // TODO: validate feed
-        var sql = "INSERT INTO feeds(url, name, latest_post_date) VALUES(@url, @name, now())";
+        var sql = @"INSERT INTO feeds(url, name, ""latest_post_date"", ""userId"") VALUES(@url, @name, CLOCK_TIMESTAMP(), @userId)";
         using var db = new NpgsqlConnection(connString);
-        _ = await db.ExecuteAsync(sql, new { url, name });
+        _ = await db.ExecuteAsync(sql, new { url, name, userId });
     }
 
     public async Task UpdateLatestPostDate(string feedUrl, DateTime date)
     {
-        var sql = "UPDATE feeds SET latest_post_date = @date WHERE url = @feedUrl";
+        var sql = @"UPDATE feeds SET ""latest_post_date"" = @date WHERE url = @feedUrl";
         using var db = new NpgsqlConnection(connString);
         _ = await db.ExecuteAsync(sql, new { feedUrl, date });
     }

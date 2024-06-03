@@ -53,7 +53,12 @@ public class MessageHandler(ITelegramBotClient bot, FeedRepository feedRepo, Fee
                 await HandleStartCommand(userId, token);
                 break;
             case "/getfeeds":
-                var markup = await CreateFeedMarkUpSelector();
+                var markup = await CreateFeedMarkUpSelector(userId);
+                if (markup is null)
+                {
+                    await bot.SendTextMessageAsync(userId, "No feeds found", cancellationToken: token);
+                    break;
+                }
                 await userRepo.ChangeState(userId, UserState.GettingFeed);
                 await bot.SendTextMessageAsync(userId, "Choose a blog", replyMarkup: markup, cancellationToken: token);
                 break;
@@ -91,7 +96,7 @@ public class MessageHandler(ITelegramBotClient bot, FeedRepository feedRepo, Fee
 
     private async Task GettingFeedHandler(string blogName, long userId, CancellationToken token)
     {
-        var feeds = await feedRepo.ReadFeeds();
+        var feeds = await feedRepo.ReadFeeds(userId);
         var feed = feeds.Where(x => x.Name.Equals(blogName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
         if (feed is null)
             return;
@@ -101,7 +106,7 @@ public class MessageHandler(ITelegramBotClient bot, FeedRepository feedRepo, Fee
         var posts = await service.GetFeed(feed.Url);
         foreach (var post in posts)
         {
-            var markup = new InlineKeyboardMarkup(InlineKeyboardButton.WithCallbackData("Get Post", post.Id));
+            var markup = new InlineKeyboardMarkup(InlineKeyboardButton.WithUrl("View", post.Uri));
             await bot.SendTextMessageAsync(userId, RemoveUnsupportedTags(post.ToString()),
             cancellationToken: token, parseMode: ParseMode.Html, replyMarkup: markup);
         }
@@ -142,7 +147,7 @@ public class MessageHandler(ITelegramBotClient bot, FeedRepository feedRepo, Fee
     private async Task HandleAddFeedCommand(long userId, string message, CancellationToken token)
     {
         // Feed format is: Name - Url.
-        if (string.IsNullOrWhiteSpace(message))
+        if (string.IsNullOrWhiteSpace(message) || !message.Contains('-'))
         {
             await bot.SendTextMessageAsync(userId, "Invalid Input please try again", cancellationToken: token);
             return;
@@ -154,8 +159,8 @@ public class MessageHandler(ITelegramBotClient bot, FeedRepository feedRepo, Fee
         }
 
         var nameUrl = message.Split('-');
-        var name = nameUrl[0];
-        var url = nameUrl[1];
+        var name = nameUrl[0].Trim();
+        var url = nameUrl[1].Trim();
 
         if (!url.EndsWith("rss"))
         {
@@ -163,16 +168,19 @@ public class MessageHandler(ITelegramBotClient bot, FeedRepository feedRepo, Fee
             return;
         }
 
-        await feedRepo.AddFeed(name, url);
+        await feedRepo.AddFeed(userId, name, url);
         await userRepo.ChangeState(userId, UserState.MainMenu);
 
         await bot.SendTextMessageAsync(userId, "Feed added", replyMarkup: new ReplyKeyboardRemove(), cancellationToken: token);
     }
 
 
-    private async Task<ReplyKeyboardMarkup> CreateFeedMarkUpSelector()
+    private async Task<ReplyKeyboardMarkup?> CreateFeedMarkUpSelector(long userId)
     {
-        var feeds = await feedRepo.ReadFeeds();
+        var feeds = await feedRepo.ReadFeeds(userId);
+        if (feeds.IsEmpty)
+            return null;
+
         List<List<KeyboardButton>> result = [];
 
         // To display them in two columns order.

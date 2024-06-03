@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
+using WebHaven.TelegramBot.Bot.UserLogic;
 using WebHaven.TelegramBot.Feeds;
 
 namespace WebHaven.TelegramBot.Bot;
@@ -14,34 +15,37 @@ public class FeedMonitorService(ITelegramBotClient bot, IServiceScopeFactory sco
         {
             using (var provider = scopeFactory.CreateScope())
             {
-                var repo = provider.ServiceProvider.GetRequiredService<FeedRepository>();
+                var feedRepo = provider.ServiceProvider.GetRequiredService<FeedRepository>();
                 var feedAgg = provider.ServiceProvider.GetRequiredService<FeedAggregator>();
+                var userRepo = provider.ServiceProvider.GetRequiredService<UserRepository>();
 
-                var feeds = await repo.ReadFeeds();
-                var feedsPosts = feeds.Select(feed => GetLatestPost(feed.Url, repo, feedAgg)).ToArray();
-                var posts = (await Task.WhenAll(feedsPosts)).SelectMany(x => x);
+                var users = await userRepo.GetUsers();
+                // TODO: Implement paging.
+                foreach (var user in users)
+                {
+                    var feeds = await feedRepo.ReadFeeds(user.Id);
+                    var posts = await GetLatestPost(feeds, feedAgg, feedRepo);
 
-                foreach (var post in posts)
-                    // TODO: Get user id
-                    await bot.SendTextMessageAsync(1, post.ToString(), cancellationToken: stoppingToken);
+                    foreach (var post in posts)
+                        await bot.SendTextMessageAsync(user.Id, post.ToString(), cancellationToken: stoppingToken);
+                }
             }
             await Task.Delay(TimeSpan.FromHours(12), stoppingToken);
         }
     }
-    private async Task<ImmutableArray<PostSummary>> GetLatestPost(string url, FeedRepository repo, FeedAggregator feedAgg)
+    private async Task<ImmutableArray<PostSummary>> GetLatestPost(IEnumerable<Feed> feeds, FeedAggregator feedAgg, FeedRepository repo)
     {
-        var feed = (await repo.ReadFeeds()).Where(x => x.Url.Equals(url)).FirstOrDefault()
-        ?? throw new InvalidOperationException("The feed you provided is not in db");
-
-        var feedPosts = await feedAgg.GetFeed(feed.Url);
-
-        List<PostSummary> newPosts = [];
-        foreach (var post in feedPosts)
+        List<PostSummary> posts = [];
+        foreach (var feed in feeds)
         {
-            if (post.Date > feed.LatestPostDate)
-                newPosts.Add(post);
+            var feedPosts = await feedAgg.GetFeed(feed.Url);
+            var newPosts = feedPosts.Where(p => p.Date > feed.LatestPostDate).OrderByDescending(x => x.Date);
+            if (newPosts.Any())
+            {
+                await repo.UpdateLatestPostDate(feed.Url, newPosts.First().Date ?? DateTime.Now);
+                posts.AddRange(newPosts);
+            }
         }
-
-        return ImmutableArray.Create(newPosts.ToArray());
+        return ImmutableArray.Create(posts.ToArray());
     }
 }
