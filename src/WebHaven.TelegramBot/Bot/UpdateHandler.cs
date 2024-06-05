@@ -1,38 +1,47 @@
 using Telegram.Bot;
+using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using WebHaven.TelegramBot.Bot.Handlers;
-using WebHaven.TelegramBot.Bot.UserLogic;
-using WebHaven.TelegramBot.Feeds;
 
 namespace WebHaven.TelegramBot.Bot;
 
-public class UpdateHandler
+public class UpdateHandler(IServiceScopeFactory scopeFactory)
 {
-    public static async Task HandleUpdate(ITelegramBotClient bot, Update update, CancellationToken token,
-                                          ConnectionString connString)
+    public async Task Handle(Update update, CancellationToken token)
     {
-        // Singleton
-        var feedAgg = new FeedAggregator();
-
+        using var scope = scopeFactory.CreateScope();
         switch (update.Type)
         {
             case UpdateType.Message:
-                var feedRepo = new FeedRepository(connString);
-                var userRepo = new UserRepository(connString);
-                var msgHandler = new MessageHandler(bot, feedRepo, feedAgg, userRepo);
-
+                var msgHandler = scope.ServiceProvider.GetRequiredService<MessageHandler>();
                 await msgHandler.Handle(update.Message!, token);
                 break;
             case UpdateType.CallbackQuery:
-                var btnHandler = new ButtonHandler(bot, feedAgg);
-
+                var btnHandler = scope.ServiceProvider.GetRequiredService<ButtonHandler>();
                 await btnHandler.Handle(update.CallbackQuery!, token);
                 break;
 
             default:
-                await bot.SendTextMessageAsync(update.Message!.From!.Id, "Unrecognized command", cancellationToken: token);
                 break;
         }
     }
+
+    // TODO: Do something about error handling
+    // public async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+    // {
+
+    //     var ErrorMessage = exception switch
+    //     {
+    //         ApiRequestException apiRequestException => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
+    //         _ => exception.ToString()
+    //     };
+
+    //     // _logger.LogInformation("HandleError: {ErrorMessage}", ErrorMessage);
+
+    //     // Cooldown in case of network connection error
+    //     if (exception is RequestException)
+    //         await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+    // }
+
 }
