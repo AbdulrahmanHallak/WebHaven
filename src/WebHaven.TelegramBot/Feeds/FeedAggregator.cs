@@ -20,6 +20,7 @@ public class FeedAggregator
         return ImmutableArray.Create(summaries.ToArray());
     }
 
+    //* This is not being used by anything currently.
     public async Task<Post> GetPost(string postId)
     {
         var url = postId.Split('?')[0] + "rss";

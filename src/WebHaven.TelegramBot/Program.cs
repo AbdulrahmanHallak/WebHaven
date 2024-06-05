@@ -25,7 +25,6 @@ class Program
         builder.Services.AddScoped<UserRepository>();
         builder.Services.AddScoped<UpdateHandler>();
         builder.Services.AddScoped<MessageHandler>();
-        builder.Services.AddScoped<ButtonHandler>();
 
         builder.Services.AddHttpClient("TelegramBotClient")
             .AddTypedClient<ITelegramBotClient>((httpClient, sp) =>

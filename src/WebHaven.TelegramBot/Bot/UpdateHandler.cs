@@ -1,5 +1,3 @@
-using Telegram.Bot;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using WebHaven.TelegramBot.Bot.Handlers;
@@ -17,11 +15,6 @@ public class UpdateHandler(IServiceScopeFactory scopeFactory)
                 var msgHandler = scope.ServiceProvider.GetRequiredService<MessageHandler>();
                 await msgHandler.Handle(update.Message!, token);
                 break;
-            case UpdateType.CallbackQuery:
-                var btnHandler = scope.ServiceProvider.GetRequiredService<ButtonHandler>();
-                await btnHandler.Handle(update.CallbackQuery!, token);
-                break;
-
             default:
                 break;
         }
