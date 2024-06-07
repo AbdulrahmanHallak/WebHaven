@@ -34,7 +34,7 @@ class Program
                 var options = new TelegramBotClientOptions(botConfig.Token);
                 return new TelegramBotClient(options, httpClient);
             });
-        builder.Services.AddHostedService<ConfigureWebhook>();
+        builder.Services.AddHostedService<InitializeWebhook>();
 
 
         var app = builder.Build();
@@ -51,6 +51,8 @@ class Program
         .AddEndpointFilter<ValidateBotFilter>();
 
         app.Run();
+
+        // TODO: Add logging with serilog.
     }
 }
 public record BotConfigs
