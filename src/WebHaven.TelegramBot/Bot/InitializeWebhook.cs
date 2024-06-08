@@ -7,7 +7,6 @@ public class InitializeWebhook(IServiceScopeFactory scopeFactory, ILogger<Initia
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        // TODO: See if you can refactor to use BackgroundService.
         using var scope = scopeFactory.CreateScope();
         var botClient = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
 
