@@ -9,13 +9,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebHaven.DatabaseMigrator",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebHaven.TelegramBot", "src\WebHaven.TelegramBot\WebHaven.TelegramBot.csproj", "{7B1E807F-80A6-4B8E-B4DE-36C95BEF501A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{97D50312-B25A-4786-9BF0-5769FD469BD4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebHaven.TelegramBot.Tests", "tests\WebHaven.TelegramBot.Tests\WebHaven.TelegramBot.Tests.csproj", "{998FE612-8F69-40FF-8165-FE54AFF1B831}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{36DEF20F-8B39-435C-BBDF-A37AB2121E21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -26,9 +27,17 @@ Global
 		{7B1E807F-80A6-4B8E-B4DE-36C95BEF501A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B1E807F-80A6-4B8E-B4DE-36C95BEF501A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B1E807F-80A6-4B8E-B4DE-36C95BEF501A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{998FE612-8F69-40FF-8165-FE54AFF1B831}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{998FE612-8F69-40FF-8165-FE54AFF1B831}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{998FE612-8F69-40FF-8165-FE54AFF1B831}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{998FE612-8F69-40FF-8165-FE54AFF1B831}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{36DEF20F-8B39-435C-BBDF-A37AB2121E21} = {74942437-C62D-480F-A5F6-FD5CEA537847}
 		{7B1E807F-80A6-4B8E-B4DE-36C95BEF501A} = {74942437-C62D-480F-A5F6-FD5CEA537847}
+		{998FE612-8F69-40FF-8165-FE54AFF1B831} = {97D50312-B25A-4786-9BF0-5769FD469BD4}
 	EndGlobalSection
 EndGlobal
