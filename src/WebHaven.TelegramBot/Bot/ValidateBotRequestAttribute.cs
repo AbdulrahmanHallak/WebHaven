@@ -3,7 +3,7 @@
 /// Check for "X-Telegram-Bot-Api-Secret-Token"
 /// Read more: <see href="https://core.telegram.org/bots/api#setwebhook"/> "secret_token"
 /// </summary>
-public class ValidateBotFilter(BotConfigs botConfigs) : IEndpointFilter
+public class ValidateBotRequestAttribute(BotConfigs botConfigs) : IEndpointFilter
 {
     private readonly string _secretToken = botConfigs.Secret;
 

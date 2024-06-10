@@ -48,7 +48,7 @@ class Program
             return Results.Ok();
         })
         .WithName("TelegramWebhook")
-        .AddEndpointFilter<ValidateBotFilter>();
+        .AddEndpointFilter<ValidateBotRequestAttribute>();
 
         app.Run();
 
