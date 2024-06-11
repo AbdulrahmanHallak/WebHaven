@@ -1,15 +1,12 @@
-﻿using FluentMigrator.Runner;
-using Microsoft.Extensions.DependencyInjection;
-using Oakton;
+﻿using Oakton;
 
 namespace WebHaven.DatabaseMigrator;
 
 public class MigrateUpCommand : OaktonCommand<MigrateUpInput>
 {
-    private readonly IMigrationRunner _mgRunner;
-    public MigrateUpCommand(IMigrationRunner runner)
+
+    public MigrateUpCommand()
     {
-        _mgRunner = runner;
         Usage("Migrate the database up")
         .Arguments(x => x.ConnectionString);
     }
@@ -17,8 +14,9 @@ public class MigrateUpCommand : OaktonCommand<MigrateUpInput>
     {
         try
         {
-            _mgRunner.ListMigrations();
-            _mgRunner.MigrateUp();
+            var mgRunner = MigratorFactory.CreateMigrator(input.ConnectionString);
+            mgRunner.ListMigrations();
+            mgRunner.MigrateUp();
         }
         catch (Exception ex)
         {
@@ -29,24 +27,8 @@ public class MigrateUpCommand : OaktonCommand<MigrateUpInput>
     }
 }
 
-
 public class MigrateUpInput
 {
     [Description("Connection String for the db to which migrations should be applied.")]
     public string ConnectionString { get; set; } = default!;
-}
-
-public class CommandCreator(IServiceProvider serviceProvider) : ICommandCreator
-{
-    public IOaktonCommand CreateCommand(Type commandType)
-    {
-        using var scope = serviceProvider.CreateScope();
-        return (IOaktonCommand)scope.ServiceProvider.GetRequiredService(commandType);
-    }
-
-    public object CreateModel(Type modelType)
-    {
-        using var scope = serviceProvider.CreateScope();
-        return scope.ServiceProvider.GetRequiredService(modelType);
-    }
 }
