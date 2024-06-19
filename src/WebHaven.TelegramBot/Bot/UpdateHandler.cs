@@ -2,21 +2,20 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using WebHaven.TelegramBot.Bot.Handlers;
+using WebHaven.TelegramBot.Bot.Handlers.MessageHandlers;
 
 namespace WebHaven.TelegramBot.Bot;
 
-public class UpdateHandler(IServiceScopeFactory scopeFactory)
+public class UpdateHandler(IMessageHandler<MessageInput> handler)
 {
     public async Task Handle(Update update, CancellationToken token)
     {
-        using var scope = scopeFactory.CreateScope();
         switch (update.Type)
         {
             case UpdateType.Message:
                 try
                 {
-                    var msgHandler = scope.ServiceProvider.GetRequiredService<MessageHandler>();
-                    await msgHandler.Handle(update.Message!, token);
+                    await handler.Handle(new MessageInput(update.Message!), token);
                 }
                 catch (Exception ex)
                 {
