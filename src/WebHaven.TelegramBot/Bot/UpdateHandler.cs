@@ -1,8 +1,7 @@
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using WebHaven.TelegramBot.Bot.Handlers;
-using WebHaven.TelegramBot.Bot.Handlers.MessageHandlers;
+using WebHaven.TelegramBot.Bot.MessageHandlers;
 
 namespace WebHaven.TelegramBot.Bot;
 

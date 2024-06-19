@@ -1,7 +1,7 @@
 ﻿using Telegram.Bot;
 using WebHaven.TelegramBot.Bot.UserLogic;
 
-namespace WebHaven.TelegramBot.Bot.Handlers.MessageHandlers;
+namespace WebHaven.TelegramBot.Bot.MessageHandlers;
 
 public class UserCommandsHandler(
         ITelegramBotClient bot,

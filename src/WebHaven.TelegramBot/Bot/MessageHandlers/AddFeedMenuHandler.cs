@@ -3,7 +3,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 using WebHaven.TelegramBot.Bot.UserLogic;
 using WebHaven.TelegramBot.Feeds;
 
-namespace WebHaven.TelegramBot.Bot.Handlers.MessageHandlers;
+namespace WebHaven.TelegramBot.Bot.MessageHandlers;
 
 public class AddFeedMenuHandler(ITelegramBotClient bot, FeedRepository feedRepo, UserRepository userRepo)
             : IMessageHandler<AddFeedMenu>

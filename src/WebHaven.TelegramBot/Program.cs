@@ -3,7 +3,7 @@ using WebHaven.TelegramBot.Bot;
 using WebHaven.TelegramBot.Bot.UserLogic;
 using WebHaven.TelegramBot.Feeds;
 using SimpleInjector;
-using WebHaven.TelegramBot.Bot.Handlers.MessageHandlers;
+using WebHaven.TelegramBot.Bot.MessageHandlers;
 
 namespace WebHaven.TelegramBot;
 

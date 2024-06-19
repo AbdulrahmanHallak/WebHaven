@@ -1,7 +1,6 @@
 using Telegram.Bot.Types;
-using WebHaven.TelegramBot.Bot.Handlers.MessageHandlers;
 
-namespace WebHaven.TelegramBot.Bot.Handlers;
+namespace WebHaven.TelegramBot.Bot.MessageHandlers;
 
 public class MessageHandler(IMessageHandler<CommandInput> cmdHandler, IMessageHandler<MenuInput> menuHandler)
             : IMessageHandler<MessageInput>

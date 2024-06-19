@@ -1,4 +1,4 @@
-﻿namespace WebHaven.TelegramBot.Bot.Handlers.MessageHandlers;
+﻿namespace WebHaven.TelegramBot.Bot.MessageHandlers;
 
 public interface IMessageHandler<TMessage> where TMessage : IMessage
 {
