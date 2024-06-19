@@ -11,8 +11,11 @@
     <PackageReference Include="CodeHollow.FeedReader" Version="1.2.6" />
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.6" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="Npgsql" Version="8.0.3" />
+    <PackageReference Include="SimpleInjector" Version="5.4.6" />
+    <PackageReference Include="SimpleInjector.Integration.AspNetCore.Mvc.Core" Version="5.5.0" />
     <PackageReference Include="Telegram.Bot" Version="19.0.0" />
   </ItemGroup>
 

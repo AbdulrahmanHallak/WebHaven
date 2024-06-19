@@ -2,20 +2,22 @@ using System.Collections.Immutable;
 using Telegram.Bot;
 using WebHaven.TelegramBot.Bot.UserLogic;
 using WebHaven.TelegramBot.Feeds;
+using SimpleInjector;
+using SimpleInjector.Lifestyles;
 
 namespace WebHaven.TelegramBot.Bot;
 
-public class FeedMonitorService(ITelegramBotClient bot, IServiceScopeFactory scopeFactory) : BackgroundService
+public class FeedMonitorService(ITelegramBotClient bot, Container container) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            using (var provider = scopeFactory.CreateScope())
+            using (var scope = AsyncScopedLifestyle.BeginScope(container))
             {
-                var feedRepo = provider.ServiceProvider.GetRequiredService<FeedRepository>();
-                var feedAgg = provider.ServiceProvider.GetRequiredService<FeedAggregator>();
-                var userRepo = provider.ServiceProvider.GetRequiredService<UserRepository>();
+                var feedRepo = scope.GetInstance<FeedRepository>();
+                var feedAgg = scope.GetInstance<FeedAggregator>();
+                var userRepo = scope.GetInstance<UserRepository>();
 
                 var users = await userRepo.GetUsers();
                 // TODO: Implement paging.
