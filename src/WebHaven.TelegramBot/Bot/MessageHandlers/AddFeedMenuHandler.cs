@@ -5,8 +5,12 @@ using WebHaven.TelegramBot.Feeds;
 
 namespace WebHaven.TelegramBot.Bot.MessageHandlers;
 
-public class AddFeedMenuHandler(ITelegramBotClient bot, FeedRepository feedRepo, UserRepository userRepo)
-            : IMessageHandler<AddFeedMenu>
+public class AddFeedMenuHandler(
+    ITelegramBotClient bot,
+    FeedRepository feedRepo,
+    UserRepository userRepo,
+    FeedValidator validator)
+    : IMessageHandler<AddFeedMenu>
 {
     public async Task Handle(AddFeedMenu input, CancellationToken token)
     {
@@ -26,17 +30,20 @@ public class AddFeedMenuHandler(ITelegramBotClient bot, FeedRepository feedRepo,
         var nameUrl = input.Message.Split('-');
         var name = nameUrl[0].Trim();
         var url = nameUrl[1].Trim();
-
-        if (!url.EndsWith("rss"))
+        var isValidFeed = await validator.IsValid(url);
+        if (!isValidFeed)
         {
-            await bot.SendTextMessageAsync(input.UserId, "Invalid Input please try again", cancellationToken: token);
+            await bot.SendTextMessageAsync(input.UserId,
+            "The url you provided is either invalid or there is no feed associated with it.");
             return;
         }
+
 
         await feedRepo.AddFeed(input.UserId, name, url);
         await userRepo.ChangeState(input.UserId, UserState.MainMenu);
 
-        await bot.SendTextMessageAsync(input.UserId, "Feed added", replyMarkup: new ReplyKeyboardRemove(),
+        await bot.SendTextMessageAsync(input.UserId, "Feed added",
+        replyMarkup: new ReplyKeyboardRemove(),
         cancellationToken: token);
     }
 }

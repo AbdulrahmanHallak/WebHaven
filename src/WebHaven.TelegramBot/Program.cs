@@ -37,6 +37,7 @@ class Program
         container.Register(() => new ConnectionString(connString), Lifestyle.Singleton);
         container.Register<FeedRepository>(Lifestyle.Scoped);
         container.Register<FeedAggregator>(Lifestyle.Singleton);
+        container.Register<FeedValidator>(Lifestyle.Singleton);
         container.Register<UserRepository>(Lifestyle.Scoped);
         container.Register<UpdateHandler>(Lifestyle.Scoped);
         var assembly = typeof(Program).Assembly;

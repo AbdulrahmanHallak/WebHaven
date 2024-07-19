@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Xml;
 using CodeHollow.FeedReader;
 
 namespace WebHaven.TelegramBot.Feeds;
@@ -8,16 +7,7 @@ public class FeedAggregator
 {
     public async Task<ImmutableArray<PostSummary>> GetFeed(string url)
     {
-        CodeHollow.FeedReader.Feed? feed;
-        try
-        {
-            feed = await FeedReader.ReadAsync(url);
-
-        }
-        catch (Exception ex) when (ex is XmlException or UriFormatException)
-        {
-            throw new InvalidOperationException("The url you provided is invalid or feed does not exist");
-        }
+        var feed = await FeedReader.ReadAsync(url);
 
         List<PostSummary> summaries = [];
         foreach (var post in feed.Items)
