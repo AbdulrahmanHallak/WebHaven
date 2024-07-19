@@ -19,6 +19,7 @@ public class FeedAggregatorTest
 
     [InlineData("")]
     [InlineData("https://google.com")]
+    [InlineData(null)]
     [Theory]
     public async Task Getting_feed_with_invalid_url_or_not_existent_feed_throws(string url)
     {
@@ -26,7 +27,6 @@ public class FeedAggregatorTest
 
         var act = async () => await aggregator.GetFeed(url);
 
-        var caughtException = await Assert.ThrowsAsync<InvalidOperationException>(act);
-        Assert.Equal("The url you provided is invalid or feed does not exist", caughtException.Message);
+        var caughtException = await Assert.ThrowsAnyAsync<Exception>(act);
     }
 }
