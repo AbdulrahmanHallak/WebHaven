@@ -9,8 +9,3 @@ public enum UserState
     AddingFeed,
     GettingFeed
 }
-
-public static class Ext
-{
-    public static string ToString(this UserState state) => nameof(state);
-}
