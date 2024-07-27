@@ -18,6 +18,7 @@ public class AddFeedMenuHandler(
         {
             await bot.SendTextMessageAsync(input.UserId, "Cancelling", replyMarkup: new ReplyKeyboardRemove(),
             cancellationToken: token);
+            await userRepo.ChangeState(input.UserId, UserState.MainMenu);
             return;
         }
         // Feed format is: Name - Url.
