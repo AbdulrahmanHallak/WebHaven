@@ -33,7 +33,12 @@ public class UserRepository(ConnectionString connString)
     public async Task ChangeState(long userId, UserState newState)
     {
         using var db = new NpgsqlConnection(connString);
-        var sql = "UPDATE users SET state = @newState WHERE id = @userId";
+        var sql =
+        """
+            UPDATE users
+            SET state = @newState
+            WHERE id = @userId
+        """;
         _ = await db.ExecuteAsync(sql, new { userId, newState = newState.ToString() });
     }
 
