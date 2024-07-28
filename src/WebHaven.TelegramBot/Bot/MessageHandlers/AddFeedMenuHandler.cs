@@ -5,6 +5,8 @@ using WebHaven.TelegramBot.Feeds;
 
 namespace WebHaven.TelegramBot.Bot.MessageHandlers;
 
+public record AddFeedMenu(long UserId, string Message) : IMessage;
+
 public class AddFeedMenuHandler(
     ITelegramBotClient bot,
     FeedRepository feedRepo,
@@ -16,7 +18,8 @@ public class AddFeedMenuHandler(
     {
         if (input.Message.Equals("Cancel"))
         {
-            await bot.SendTextMessageAsync(input.UserId, "Cancelling", replyMarkup: new ReplyKeyboardRemove(),
+            await bot.SendTextMessageAsync(input.UserId, "Cancelling",
+            replyMarkup: new ReplyKeyboardRemove(),
             cancellationToken: token);
             await userRepo.ChangeState(input.UserId, UserState.MainMenu);
             return;
@@ -24,7 +27,8 @@ public class AddFeedMenuHandler(
         // Feed format is: Name - Url.
         if (string.IsNullOrWhiteSpace(input.Message) || !input.Message.Contains('-'))
         {
-            await bot.SendTextMessageAsync(input.UserId, "Invalid Input please try again", cancellationToken: token);
+            await bot.SendTextMessageAsync(input.UserId,
+            "Invalid Input please try again", cancellationToken: token);
             return;
         }
 
@@ -48,5 +52,3 @@ public class AddFeedMenuHandler(
         cancellationToken: token);
     }
 }
-
-public record AddFeedMenu(long UserId, string Message) : IMessage;

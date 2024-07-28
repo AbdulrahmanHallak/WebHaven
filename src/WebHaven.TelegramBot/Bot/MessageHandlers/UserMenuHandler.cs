@@ -2,11 +2,15 @@
 using WebHaven.TelegramBot.Bot.UserLogic;
 
 namespace WebHaven.TelegramBot.Bot.MessageHandlers;
+
+public record MenuInput(long UserId, string Message) : IMessage;
+
 public class UserMenuHandler(
         ITelegramBotClient bot,
         UserRepository userRepo,
         IMessageHandler<GettingFeedMenu> gettingFeedHandler,
-        IMessageHandler<AddFeedMenu> addFeedHandler) : IMessageHandler<MenuInput>
+        IMessageHandler<AddFeedMenu> addFeedHandler)
+        : IMessageHandler<MenuInput>
 {
     public async Task Handle(MenuInput input, CancellationToken token)
     {
@@ -37,5 +41,3 @@ public class UserMenuHandler(
     }
 
 }
-
-public record MenuInput(long UserId, string Message) : IMessage;

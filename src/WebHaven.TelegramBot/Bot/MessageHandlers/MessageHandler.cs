@@ -2,8 +2,12 @@ using Telegram.Bot.Types;
 
 namespace WebHaven.TelegramBot.Bot.MessageHandlers;
 
-public class MessageHandler(IMessageHandler<CommandInput> cmdHandler, IMessageHandler<MenuInput> menuHandler)
-            : IMessageHandler<MessageInput>
+public record MessageInput(Message msg) : IMessage;
+
+public class MessageHandler(
+    IMessageHandler<CommandInput> cmdHandler,
+    IMessageHandler<MenuInput> menuHandler)
+    : IMessageHandler<MessageInput>
 {
     public async Task Handle(MessageInput input, CancellationToken token)
     {
@@ -20,5 +24,3 @@ public class MessageHandler(IMessageHandler<CommandInput> cmdHandler, IMessageHa
             await menuHandler.Handle(new MenuInput(user.Id, text), token);
     }
 }
-
-public record MessageInput(Message msg) : IMessage;

@@ -4,6 +4,8 @@ using WebHaven.TelegramBot.Bot.UserLogic;
 
 namespace WebHaven.TelegramBot.Bot.MessageHandlers;
 
+public record AddFeedCommand(long UserId) : IMessage;
+
 public class AddFeedCommandHandler(ITelegramBotClient bot, UserRepository userRepo) : IMessageHandler<AddFeedCommand>
 {
     public async Task Handle(AddFeedCommand input, CancellationToken token)
@@ -15,5 +17,3 @@ public class AddFeedCommandHandler(ITelegramBotClient bot, UserRepository userRe
         await userRepo.ChangeState(input.UserId, UserState.AddingFeed);
     }
 }
-
-public record AddFeedCommand(long UserId) : IMessage;

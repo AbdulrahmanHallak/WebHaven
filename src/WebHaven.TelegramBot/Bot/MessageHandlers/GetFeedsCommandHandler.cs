@@ -5,19 +5,26 @@ using WebHaven.TelegramBot.Feeds;
 
 namespace WebHaven.TelegramBot.Bot.MessageHandlers;
 
-public class GetFeedsCommandHandler(ITelegramBotClient bot, UserRepository userRepo, FeedRepository feedRepo)
-            : IMessageHandler<GetFeedsCommand>
+public record GetFeedsCommand(long UserId) : IMessage;
+
+public class GetFeedsCommandHandler(
+        ITelegramBotClient bot,
+        UserRepository userRepo,
+        FeedRepository feedRepo)
+        : IMessageHandler<GetFeedsCommand>
 {
     public async Task Handle(GetFeedsCommand input, CancellationToken token)
     {
         var markup = await CreateFeedMarkUpSelector(input.UserId);
         if (markup is null)
         {
-            await bot.SendTextMessageAsync(input.UserId, "No feeds found", cancellationToken: token);
+            await bot.SendTextMessageAsync(input.UserId, "No feeds found",
+            cancellationToken: token);
             return;
         }
         await userRepo.ChangeState(input.UserId, UserState.GettingFeed);
-        await bot.SendTextMessageAsync(input.UserId, "Choose a blog", replyMarkup: markup, cancellationToken: token);
+        await bot.SendTextMessageAsync(input.UserId, "Choose a feed",
+        replyMarkup: markup, cancellationToken: token);
     }
     private async Task<ReplyKeyboardMarkup?> CreateFeedMarkUpSelector(long userId)
     {
@@ -42,4 +49,3 @@ public class GetFeedsCommandHandler(ITelegramBotClient bot, UserRepository userR
     }
 }
 
-public record GetFeedsCommand(long UserId) : IMessage;

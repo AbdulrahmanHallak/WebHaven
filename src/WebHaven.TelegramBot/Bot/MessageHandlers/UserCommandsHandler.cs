@@ -3,11 +3,14 @@ using WebHaven.TelegramBot.Bot.UserLogic;
 
 namespace WebHaven.TelegramBot.Bot.MessageHandlers;
 
+public record CommandInput(long UserId, string Command) : IMessage;
+
 public class UserCommandsHandler(
         ITelegramBotClient bot,
         IMessageHandler<GetFeedsCommand> getFeedsHandler,
         IMessageHandler<AddFeedCommand> addFeedHandler,
-        UserRepository userRepo) : IMessageHandler<CommandInput>
+        UserRepository userRepo)
+        : IMessageHandler<CommandInput>
 {
     public async Task Handle(CommandInput input, CancellationToken token)
     {
@@ -41,5 +44,3 @@ public class UserCommandsHandler(
         await bot.SendTextMessageAsync(userId, welcomeText, cancellationToken: token);
     }
 }
-
-public record CommandInput(long UserId, string Command) : IMessage;

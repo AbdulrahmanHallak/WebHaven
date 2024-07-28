@@ -7,20 +7,25 @@ using WebHaven.TelegramBot.Feeds;
 
 namespace WebHaven.TelegramBot.Bot.MessageHandlers;
 
+public record GettingFeedMenu(long UserId, string FeedName) : IMessage;
+
 public class GettingFeedMenuHandler(
         ITelegramBotClient bot,
         FeedRepository feedRepo,
         FeedAggregator feedAgg,
-        UserRepository userRepo) : IMessageHandler<GettingFeedMenu>
+        UserRepository userRepo)
+        : IMessageHandler<GettingFeedMenu>
 {
     public async Task Handle(GettingFeedMenu input, CancellationToken token)
     {
         var feeds = await feedRepo.ReadFeeds(input.UserId);
-        var feed = feeds.Where(x => x.Name.Equals(input.FeedName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+        var feed = feeds.Where(x => x.Name.Equals(input.FeedName,
+        StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
         if (feed is null)
             return;
 
-        await bot.SendTextMessageAsync(input.UserId, "Processing...", replyMarkup: new ReplyKeyboardRemove(),
+        await bot.SendTextMessageAsync(input.UserId, "Processing...",
+        replyMarkup: new ReplyKeyboardRemove(),
         cancellationToken: token);
 
         var posts = await feedAgg.GetFeed(feed.Url);
@@ -35,16 +40,14 @@ public class GettingFeedMenuHandler(
     }
     private static string RemoveUnsupportedTags(string input)
     {
-        HashSet<string> SupportedTags = ["b", "strong", "i", "em", "u", "ins", "s", "strike", "del", "code", "pre", "a"];
+        HashSet<string> SupportedTags =
+        ["b", "strong", "i", "em", "u", "ins", "s", "strike", "del", "code", "pre", "a"];
 
         var doc = new HtmlDocument();
         doc.LoadHtml(input);
 
-        // Remove HTML comments
         foreach (var comment in doc.DocumentNode.SelectNodes("//comment()") ?? Enumerable.Empty<HtmlNode>())
-        {
             comment.ParentNode.RemoveChild(comment);
-        }
 
         var nodes = new Stack<HtmlNode>(doc.DocumentNode.Descendants());
         while (nodes.Count > 0)
@@ -65,5 +68,3 @@ public class GettingFeedMenuHandler(
         return doc.DocumentNode.InnerHtml;
     }
 }
-
-public record GettingFeedMenu(long UserId, string FeedName) : IMessage;
