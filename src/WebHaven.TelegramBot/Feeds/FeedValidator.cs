@@ -12,7 +12,7 @@ public class FeedValidator
         {
             feed = await FeedReader.ReadAsync(url);
         }
-        catch (Exception ex) when (ex is XmlException or UriFormatException)
+        catch (Exception ex) when (ex is XmlException or UriFormatException or HttpRequestException)
         {
             return false;
         }
