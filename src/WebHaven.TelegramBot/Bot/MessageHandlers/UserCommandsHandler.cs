@@ -9,11 +9,14 @@ public class UserCommandsHandler(
         ITelegramBotClient bot,
         IMessageHandler<GetFeedsCommand> getFeedsHandler,
         IMessageHandler<AddFeedCommand> addFeedHandler,
-        UserRepository userRepo)
+        UserRepository userRepo,
+        ILogger<UserCommandsHandler> logger)
         : IMessageHandler<CommandInput>
 {
     public async Task Handle(CommandInput input, CancellationToken token)
     {
+        logger.LogInformation("Started handling command: {Command}, for user: {UserId}",
+            input.Command, input.UserId);
         switch (input.Command)
         {
             case "/start":
@@ -31,6 +34,9 @@ public class UserCommandsHandler(
                 await bot.SendTextMessageAsync(input.UserId, "Unrecognized command", cancellationToken: token);
                 break;
         }
+        logger.LogInformation("Finished handling command: {Command}, for user: {UserId}",
+            input.Command, input.UserId);
+
     }
     private async Task HandleStartCommand(long userId, CancellationToken token)
     {

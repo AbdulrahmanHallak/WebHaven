@@ -5,7 +5,7 @@ using WebHaven.TelegramBot.Bot.MessageHandlers;
 
 namespace WebHaven.TelegramBot.Bot;
 
-public class UpdateHandler(IMessageHandler<MessageInput> handler)
+public class UpdateHandler(IMessageHandler<MessageInput> handler, ILogger<UpdateHandler> logger)
 {
     public async Task Handle(Update update, CancellationToken token)
     {
@@ -32,10 +32,10 @@ public class UpdateHandler(IMessageHandler<MessageInput> handler)
         var ErrorMessage = exception switch
         {
             ApiRequestException apiRequestException => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
-            _ => exception.ToString()
+            _ => exception.Message.ToString()
         };
 
-        // logger.LogInformation("HandleError: {ErrorMessage}", ErrorMessage);
+        logger.LogError("HandleError: {ErrorMessage}", ErrorMessage);
 
         // Cooldown in case of network connection error
         if (exception is RequestException)

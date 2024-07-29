@@ -9,12 +9,17 @@ public class UserMenuHandler(
         ITelegramBotClient bot,
         UserRepository userRepo,
         IMessageHandler<GettingFeedMenu> gettingFeedHandler,
-        IMessageHandler<AddFeedMenu> addFeedHandler)
+        IMessageHandler<AddFeedMenu> addFeedHandler,
+        ILogger<UserMenuHandler> logger)
         : IMessageHandler<MenuInput>
 {
     public async Task Handle(MenuInput input, CancellationToken token)
     {
         var userState = await userRepo.GetState(input.UserId);
+
+        logger.LogInformation("Started handling user: {UserId}, state: {State}",
+            input.UserId, userState);
+
         switch (userState)
         {
             case UserState.GettingFeed:
@@ -32,7 +37,11 @@ public class UserMenuHandler(
             default:
                 await bot.SendTextMessageAsync(input.UserId, "Unrecognized command", cancellationToken: token);
                 break;
+
+
         }
+        logger.LogInformation("Started handling user: {UserId}, state: {State}",
+           input.UserId, userState);
     }
     private async Task MainMenuHandler(long id, string text, CancellationToken token)
     {
