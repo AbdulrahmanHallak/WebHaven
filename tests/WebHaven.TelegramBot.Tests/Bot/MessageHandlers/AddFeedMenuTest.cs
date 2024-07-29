@@ -1,6 +1,6 @@
 ﻿using NSubstitute;
 using Telegram.Bot;
-using WebHaven.TelegramBot.Bot.MessageHandlers;
+using WebHaven.TelegramBot.Bot.MessageHandlers.Menus;
 using WebHaven.TelegramBot.Bot.UserLogic;
 using WebHaven.TelegramBot.Feeds;
 

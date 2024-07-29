@@ -1,7 +1,7 @@
 ﻿using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 using Telegram.Bot;
-using WebHaven.TelegramBot.Bot.MessageHandlers;
+using WebHaven.TelegramBot.Bot.MessageHandlers.Commands;
 using WebHaven.TelegramBot.Bot.UserLogic;
 
 namespace WebHaven.TelegramBot.Tests.Bot.MessageHandlers;

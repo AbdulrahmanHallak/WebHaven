@@ -2,7 +2,7 @@
 using Telegram.Bot.Types.ReplyMarkups;
 using WebHaven.TelegramBot.Bot.UserLogic;
 
-namespace WebHaven.TelegramBot.Bot.MessageHandlers;
+namespace WebHaven.TelegramBot.Bot.MessageHandlers.Commands;
 
 public record AddFeedCommand(long UserId) : IMessage;
 

@@ -3,7 +3,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 using WebHaven.TelegramBot.Bot.UserLogic;
 using WebHaven.TelegramBot.Feeds;
 
-namespace WebHaven.TelegramBot.Bot.MessageHandlers;
+namespace WebHaven.TelegramBot.Bot.MessageHandlers.Menus;
 
 public record AddFeedMenu(long UserId, string Message) : IMessage;
 

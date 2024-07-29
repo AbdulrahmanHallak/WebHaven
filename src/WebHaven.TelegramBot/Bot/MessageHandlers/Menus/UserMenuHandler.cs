@@ -1,7 +1,7 @@
 ﻿using Telegram.Bot;
 using WebHaven.TelegramBot.Bot.UserLogic;
 
-namespace WebHaven.TelegramBot.Bot.MessageHandlers;
+namespace WebHaven.TelegramBot.Bot.MessageHandlers.Menus;
 
 public record MenuInput(long UserId, string Message) : IMessage;
 

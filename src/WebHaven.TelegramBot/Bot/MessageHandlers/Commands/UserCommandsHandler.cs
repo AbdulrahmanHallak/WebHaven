@@ -1,7 +1,7 @@
 ﻿using Telegram.Bot;
 using WebHaven.TelegramBot.Bot.UserLogic;
 
-namespace WebHaven.TelegramBot.Bot.MessageHandlers;
+namespace WebHaven.TelegramBot.Bot.MessageHandlers.Commands;
 
 public record CommandInput(long UserId, string Command) : IMessage;
 
