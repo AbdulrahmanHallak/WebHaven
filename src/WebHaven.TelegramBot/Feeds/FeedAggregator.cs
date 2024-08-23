@@ -13,7 +13,7 @@ public class FeedAggregator
         foreach (var post in feed.Items)
         {
             var summary = new PostSummary(feed.Link, post.Link, post.Title, post.PublishingDate,
-            post.PublishingDateString, post.Description, post.Id);
+            post.PublishingDateString, post.Description);
             summaries.Add(summary);
         }
 

@@ -1,6 +1,6 @@
 namespace WebHaven.TelegramBot.Feeds;
 
-public record PostSummary(string BlogUri, string Uri, string Title, DateTime? Date, string DateString, string Description, string Id)
+public record PostSummary(string BlogUri, string Uri, string Title, DateTime? Date, string DateString, string Description)
 {
     public override string ToString()
     {
