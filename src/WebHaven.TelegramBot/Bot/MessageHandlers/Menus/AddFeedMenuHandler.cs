@@ -19,8 +19,8 @@ public class AddFeedMenuHandler(
         if (input.Message.Equals("Cancel"))
         {
             await bot.SendTextMessageAsync(input.UserId, "Cancelling",
-            replyMarkup: new ReplyKeyboardRemove(),
-            cancellationToken: token);
+                replyMarkup: new ReplyKeyboardRemove(),
+                cancellationToken: token);
             await userRepo.ChangeState(input.UserId, UserState.MainMenu);
             return;
         }
@@ -39,7 +39,8 @@ public class AddFeedMenuHandler(
         if (!isValidFeed)
         {
             await bot.SendTextMessageAsync(input.UserId,
-            "The url you provided is either invalid or there is no feed associated with it.");
+                "The url you provided is either invalid or there is no feed associated with it.",
+                cancellationToken: token);
             return;
         }
 
@@ -48,7 +49,7 @@ public class AddFeedMenuHandler(
         await userRepo.ChangeState(input.UserId, UserState.MainMenu);
 
         await bot.SendTextMessageAsync(input.UserId, "Feed added",
-        replyMarkup: new ReplyKeyboardRemove(),
-        cancellationToken: token);
+            replyMarkup: new ReplyKeyboardRemove(),
+            cancellationToken: token);
     }
 }
