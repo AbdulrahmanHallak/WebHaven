@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using WebHaven.DatabaseSchema.Tables;
 using Dapper;
 using Npgsql;
 
@@ -7,18 +8,19 @@ public class UserRepository(ConnectionString connString)
 {
     public async Task Add(long userId)
     {
+        var sql = $"SELECT EXISTS(SELECT 1 FROM {Users.TableName} WHERE {Users.Columns.Id} = @userId)";
         using var db = new NpgsqlConnection(connString);
-        var existSql = "SELECT EXISTS(SELECT 1 FROM users WHERE id = @userId)";
-        bool userExists = await db.ExecuteScalarAsync<bool>(existSql, new { userId });
+        bool userExists = await db.ExecuteScalarAsync<bool>(sql, new { userId });
         if (userExists)
             return;
 
-        var addSql = "INSERT INTO users VALUES(@userId, @state)";
+        var addSql = $"INSERT INTO {Users.TableName} VALUES(@userId, @state)";
         _ = await db.ExecuteAsync(addSql, new { userId, state = nameof(UserState.MainMenu) });
     }
     public async Task<UserState?> GetState(long userId)
     {
-        var sql = "SELECT state FROM users WHERE id = @userId";
+        // TODO: is it really possible that the state is null?
+        var sql = $"SELECT {Users.Columns.State} FROM users WHERE {Users.Columns.Id} = @userId";
         using var db = new NpgsqlConnection(connString);
         var strState = await db.QuerySingleAsync<string>(sql, new { userId });
         if (strState is null)
@@ -34,10 +36,10 @@ public class UserRepository(ConnectionString connString)
     {
         using var db = new NpgsqlConnection(connString);
         var sql =
-        """
-            UPDATE users
-            SET state = @newState
-            WHERE id = @userId
+        $"""
+            UPDATE {Users.TableName}
+            SET {Users.Columns.State} = @newState
+            WHERE {Users.Columns.Id} = @userId
         """;
         _ = await db.ExecuteAsync(sql, new { userId, newState = newState.ToString() });
     }

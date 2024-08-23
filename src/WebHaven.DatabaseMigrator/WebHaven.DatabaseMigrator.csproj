@@ -20,4 +20,8 @@
     <Folder Include="Migrations/" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WebHaven.DatabaseSchema\WebHaven.DatabaseSchema.csproj" />
+  </ItemGroup>
+
 </Project>

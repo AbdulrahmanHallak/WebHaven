@@ -1,5 +1,5 @@
 ﻿using FluentMigrator;
-using WebHaven.DatabaseMigrator.Tables;
+using WebHaven.DatabaseSchema.Tables;
 
 namespace WebHaven.DatabaseMigrator;
 
@@ -13,10 +13,8 @@ public class InitialMigration_202406112143 : Migration
         Delete.Table(Users.TableName);
     }
 
-    // TODO: introduce static classes and stuff for removing magical strings
     public override void Up()
     {
-        // TODO: add a migration for introducing indexes and stuff.
         // TODO: also set the on delete and on update action on the relation
         // Ids in the db will rely on the Telegram Ids for users so we are not
         // using an auto-incremented int as the primary key;

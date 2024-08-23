@@ -26,4 +26,8 @@
     <Folder Include="Properties/" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WebHaven.DatabaseSchema\WebHaven.DatabaseSchema.csproj" />
+  </ItemGroup>
+
 </Project>

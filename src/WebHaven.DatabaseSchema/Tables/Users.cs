@@ -1,4 +1,4 @@
-namespace WebHaven.DatabaseMigrator.Tables;
+namespace WebHaven.DatabaseSchema.Tables;
 
 public static class Users
 {

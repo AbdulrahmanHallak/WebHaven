@@ -1,4 +1,4 @@
-namespace WebHaven.DatabaseMigrator.Tables;
+namespace WebHaven.DatabaseSchema.Tables;
 
 public static class Feeds
 {
@@ -9,7 +9,7 @@ public static class Feeds
         public const string Name = "name";
         public const string Url = "url";
         public const string LatestPostDate = "latest_post_date";
-        public const string UserId = "userId";
+        public const string UserId = @"""userId""";
     }
 
     public static class Constraints
