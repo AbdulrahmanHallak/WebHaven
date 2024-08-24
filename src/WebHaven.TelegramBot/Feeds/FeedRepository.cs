@@ -41,6 +41,7 @@ public class FeedRepository(ConnectionString connString)
 
     public async Task AddFeed(long userId, string name, string url)
     {
+        // TODO: write a test to cover relationships are correct.
         int? feedId = await FeedExists(url);
         if (feedId is not null)
         {
@@ -65,11 +66,13 @@ public class FeedRepository(ConnectionString connString)
                     {
                         var insertFeed =
                         $"""
-                        INSERT INTO {FeedTable.TableName}( {FeedTable.Columns.Url}, {FeedTable.Columns.LatestPostDate} )
+                        INSERT INTO {FeedTable.TableName}( {FeedTable.Columns.Url},
+                            {FeedTable.Columns.LatestPostDate} )
                         VALUES(@url, now())
                         RETURNING feed_id;
                     """;
-                        var insertedId = await connection.ExecuteScalarAsync<long>(insertFeed, new { url }, transaction);
+                        var insertedId = await connection.ExecuteScalarAsync<long>(insertFeed,
+                            new { url }, transaction);
 
                         var insertUsersFeeds =
                         $"""
@@ -77,7 +80,8 @@ public class FeedRepository(ConnectionString connString)
                             {UsersFeeds.Column.UserId}, {UsersFeeds.Column.Name} )
                         VALUES(@insertedId, @userId, @name);
                     """;
-                        _ = await connection.ExecuteAsync(insertUsersFeeds, new { insertedId, userId, name }, transaction);
+                        _ = await connection.ExecuteAsync(insertUsersFeeds,
+                            new { insertedId, userId, name }, transaction);
 
                         await transaction.CommitAsync();
                     }
@@ -89,18 +93,5 @@ public class FeedRepository(ConnectionString connString)
                 }
             }
         }
-    }
-
-    // TODO: remove it nobody is using it.
-    public async Task UpdateLatestPostDate(string feedUrl, DateTime date)
-    {
-        var sql =
-        $"""
-            UPDATE {FeedTable.TableName}
-            SET {FeedTable.Columns.LatestPostDate} = @date
-            WHERE {FeedTable.Columns.Url} = @feedUrl
-        """;
-        using var db = new NpgsqlConnection(connString);
-        _ = await db.ExecuteAsync(sql, new { feedUrl, date });
     }
 }
