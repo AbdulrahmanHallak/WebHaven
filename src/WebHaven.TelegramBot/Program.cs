@@ -60,6 +60,8 @@ class Program
                 return new TelegramBotClient(options, clientFactory.CreateClient());
             }, Lifestyle.Scoped);
 
+            Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+
             var app = builder.Build();
             app.Services.UseSimpleInjector(container);
             app.UseSerilogRequestLogging();

@@ -28,7 +28,7 @@ public class GetFeedsCommandHandler(
     }
     private async Task<ReplyKeyboardMarkup?> CreateFeedMarkUpSelector(long userId)
     {
-        var feeds = await feedRepo.ReadFeeds(userId);
+        var feeds = await feedRepo.GetUserFeeds(userId);
         if (feeds.IsEmpty)
             return null;
 

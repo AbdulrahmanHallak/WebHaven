@@ -38,7 +38,7 @@ public class AddFeedMenuTest
         var feedExists = await _feedRepo.FeedExists(feedUrl);
         var actualState = (UserState)await _userRepo.GetState(userId);
         Assert.Equal(UserState.MainMenu, actualState);
-        Assert.True(feedExists);
+        Assert.NotNull(feedExists);
         await _botMock.ReceivedWithAnyArgs(1).SendTextMessageAsync(default!, default!);
     }
 
