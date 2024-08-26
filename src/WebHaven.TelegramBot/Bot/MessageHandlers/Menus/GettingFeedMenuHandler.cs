@@ -18,9 +18,7 @@ public class GettingFeedMenuHandler(
 {
     public async Task Handle(GettingFeedMenu input, CancellationToken token)
     {
-        var feeds = await feedRepo.GetUserFeeds(input.UserId);
-        var feed = feeds.Where(x => x.Name.Equals(input.FeedName,
-        StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+        var feed = await feedRepo.GetUserFeed(input.UserId, input.FeedName);
         if (feed is null)
             return;
 

@@ -38,6 +38,23 @@ public class FeedRepository(ConnectionString connString)
 
         return ImmutableArray.Create(feeds.ToArray());
     }
+    public async Task<Feed?> GetUserFeed(long userId, string name)
+    {
+        var sql =
+        $"""
+            SELECT f.{FeedTable.Columns.Url}
+            FROM {FeedTable.TableName} f
+            INNER JOIN {UsersFeeds.TableName} uf
+            ON uf.{UsersFeeds.Column.FeedId} = f.{FeedTable.Columns.Id}
+            WHERE uf.{UsersFeeds.Column.UserId} = @userId
+            AND uf.{UsersFeeds.Column.Name} = @name
+        """;
+
+        using var connection = new NpgsqlConnection(connString);
+        var result = await connection.QueryFirstOrDefaultAsync<Feed>(sql, new { userId, name });
+
+        return result;
+    }
 
     public async Task AddFeed(long userId, string name, string url)
     {
