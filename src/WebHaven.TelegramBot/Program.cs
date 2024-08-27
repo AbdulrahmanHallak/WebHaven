@@ -5,6 +5,7 @@ using WebHaven.TelegramBot.Feeds;
 using SimpleInjector;
 using WebHaven.TelegramBot.Bot.MessageHandlers;
 using Serilog;
+using PollingWorker = WebHaven.TelegramBot.Bot.FeedPollingWorker;
 
 namespace WebHaven.TelegramBot;
 
@@ -39,16 +40,19 @@ class Program
             {
                 options.AddAspNetCore().AddControllerActivation();
                 options.AddHostedService<InitializeWebhook>();
+                options.AddHostedService<PollingWorker.WorkerService>();
                 options.Services.AddHttpClient();
             });
             container.Register<ValidateBotRequestFilter>(Lifestyle.Singleton);
             container.Register<BotConfigs>(() => botConfig, Lifestyle.Singleton);
             container.Register(() => new ConnectionString(connString), Lifestyle.Singleton);
-            container.Register<FeedRepository>(Lifestyle.Scoped);
             container.Register<FeedAggregator>(Lifestyle.Singleton);
             container.Register<FeedValidator>(Lifestyle.Singleton);
+
+            container.Register<FeedRepository>(Lifestyle.Scoped);
             container.Register<UserRepository>(Lifestyle.Scoped);
             container.Register<UpdateHandler>(Lifestyle.Scoped);
+
             var assembly = typeof(Program).Assembly;
             container.Register(typeof(IMessageHandler<>), assembly, Lifestyle.Scoped);
 
@@ -61,6 +65,10 @@ class Program
             }, Lifestyle.Scoped);
 
             Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+
+            // registering polling worker dependencies. namespace is aliased.
+            container.Register<PollingWorker.FeedAggregator>(Lifestyle.Singleton);
+            container.Register<PollingWorker.PollingRepo>(Lifestyle.Scoped);
 
             var app = builder.Build();
             app.Services.UseSimpleInjector(container);
