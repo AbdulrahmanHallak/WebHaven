@@ -1,5 +1,4 @@
-﻿using HtmlAgilityPack;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using WebHaven.TelegramBot.Bot.UserLogic;
@@ -30,39 +29,11 @@ public class GettingFeedMenuHandler(
         foreach (var post in posts)
         {
             var markup = new InlineKeyboardMarkup(InlineKeyboardButton.WithUrl("View", post.Uri));
-            await bot.SendTextMessageAsync(input.UserId, RemoveUnsupportedTags(post.ToString()),
+            await bot.SendTextMessageAsync(input.UserId, post.ToString(),
             cancellationToken: token, parseMode: ParseMode.Html, replyMarkup: markup);
         }
         await userRepo.ChangeState(input.UserId, UserState.MainMenu);
 
     }
-    private static string RemoveUnsupportedTags(string input)
-    {
-        HashSet<string> SupportedTags =
-        ["b", "strong", "i", "em", "u", "ins", "s", "strike", "del", "code", "pre", "a"];
 
-        var doc = new HtmlDocument();
-        doc.LoadHtml(input);
-
-        foreach (var comment in doc.DocumentNode.SelectNodes("//comment()") ?? Enumerable.Empty<HtmlNode>())
-            comment.ParentNode.RemoveChild(comment);
-
-        var nodes = new Stack<HtmlNode>(doc.DocumentNode.Descendants());
-        while (nodes.Count > 0)
-        {
-            var node = nodes.Pop();
-
-            if (node is { NodeType: HtmlNodeType.Element } && !SupportedTags.Contains(node.Name.ToLower()))
-            {
-                var parentNode = node.ParentNode;
-                foreach (var child in node.ChildNodes.ToList())
-                {
-                    parentNode.InsertBefore(child, node);
-                }
-                parentNode.RemoveChild(node);
-            }
-        }
-
-        return doc.DocumentNode.InnerHtml;
-    }
 }

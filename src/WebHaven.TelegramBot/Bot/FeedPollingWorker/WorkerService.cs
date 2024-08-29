@@ -1,6 +1,8 @@
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 using Telegram.Bot;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace WebHaven.TelegramBot.Bot.FeedPollingWorker;
 public class WorkerService(Container container) : BackgroundService
@@ -39,8 +41,11 @@ public class WorkerService(Container container) : BackgroundService
                         from posts in result
                         from id in posts.UsersIds
                         from post in posts.NewPosts
-                        select bot.SendTextMessageAsync(id, post.ToString(),
-                            cancellationToken: stoppingToken);
+                        select
+                        bot.SendTextMessageAsync(id, post.ToString(),
+                        cancellationToken: stoppingToken, parseMode: ParseMode.Html,
+                        replyMarkup: new InlineKeyboardMarkup(InlineKeyboardButton.WithUrl("View", post.Uri)));
+
                     await Task.WhenAll(send);
 
                     offset += limit;
