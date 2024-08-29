@@ -3,21 +3,14 @@ using Telegram.Bot.Types;
 
 namespace WebHaven.TelegramBot.Bot;
 
-public class BotController(UpdateHandler handler, ILogger<BotController> logger) : ControllerBase
+public class BotController(UpdateHandler handler) : ControllerBase
 {
 
     [HttpPost]
     [ValidateBotRequest]
     public async Task<IActionResult> Post([FromBody] Update update, CancellationToken cancellationToken)
     {
-        try
-        {
-            await handler.Handle(update, cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError("Unhandled exception occurred with message: {ExceptionMessage} occurred", ex.Message);
-        }
+        await handler.Handle(update, cancellationToken);
         return Ok();
     }
 }
