@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres
+    container_name: bot-db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=webhavendb
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - webhaven
+
+  db_migrator:
+    image: db-migrator
+    container_name: db-runner
+    environment:
+      - CONNECTIONSTRINGS__POSTGRES=${CONNECTIONSTRINGS__POSTGRES}
+    build:
+      context: .
+      dockerfile: db-migrator.Dockerfile
+    entrypoint: ["dotnet", "WebHaven.DatabaseMigrator.dll", "migrateup", "${CONNECTIONSTRINGS__POSTGRES}"]
+    networks:
+      - webhaven
+    depends_on:
+      - db
+
+  bot:
+    image: tele-bot
+    container_name: bot
+    environment:
+      - CONNECTIONSTRINGS__POSTGRES=${CONNECTIONSTRINGS__POSTGRES}
+      - TELEGRAMCONFIGURATION__SECRET=${TELEGRAMCONFIGURATION__SECRET}
+      - TELEGRAMCONFIGURATION__HOSTADDRESS=${TELEGRAMCONFIGURATION__HOSTADDRESS}
+      - TELEGRAMCONFIGURATION__TOKEN=${TELEGRAMCONFIGURATION__TOKEN}
+    build:
+      context: .
+      dockerfile: bot.Dockerfile
+    networks:
+      - webhaven
+    depends_on:
+      - db_migrator
+    ports:
+      - 8080:8080
+
+networks:
+  webhaven:
+    name: webhaven-network
+    driver: bridge
+
+volumes:
+  db-data:
+    name: webhaven-db-data
