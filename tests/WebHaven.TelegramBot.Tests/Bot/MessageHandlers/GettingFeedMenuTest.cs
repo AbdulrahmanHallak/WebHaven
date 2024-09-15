@@ -1,6 +1,7 @@
 using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 using Telegram.Bot;
+using WebHaven.TelegramBot.Bot.MessageHandlers;
 using WebHaven.TelegramBot.Bot.MessageHandlers.Menus;
 using WebHaven.TelegramBot.Bot.UserLogic;
 using WebHaven.TelegramBot.Feeds;
@@ -13,6 +14,7 @@ public class GettingFeedMenuTest
     private readonly ITelegramBotClient _botMock;
     private readonly FeedAggregator _feedAgg;
     private readonly UserRepository _userRepo;
+    private readonly FeedMarkupGenerator _feedMarkupGenerator;
     private readonly FeedRepository _feedRepo;
     private readonly Func<long> _generateId;
 
@@ -23,6 +25,7 @@ public class GettingFeedMenuTest
         _userRepo = new UserRepository(factory.ConnString);
         _feedRepo = new FeedRepository(factory.ConnString);
         _generateId = factory.GenerateRandomId;
+        _feedMarkupGenerator = new FeedMarkupGenerator(factory.ConnString);
     }
 
     [Fact]
@@ -33,7 +36,7 @@ public class GettingFeedMenuTest
         (string name, string url) feed = ("someFeed", "https://www.nasa.gov/technology/feed/");
         await _feedRepo.AddFeed(userId, feed.name, feed.url);
         var input = new GettingFeedMenu(userId, feed.name);
-        var handler = new GettingFeedMenuHandler(_botMock, _feedRepo, _feedAgg, _userRepo);
+        var handler = new GettingFeedMenuHandler(_botMock, _feedRepo, _feedAgg, _feedMarkupGenerator, _userRepo);
 
         await handler.Handle(input, default);
 

@@ -1,6 +1,7 @@
 ﻿using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 using Telegram.Bot;
+using WebHaven.TelegramBot.Bot.MessageHandlers;
 using WebHaven.TelegramBot.Bot.MessageHandlers.Commands;
 using WebHaven.TelegramBot.Bot.UserLogic;
 using WebHaven.TelegramBot.Feeds;
@@ -11,6 +12,7 @@ namespace WebHaven.TelegramBot.Tests.Bot.MessageHandlers;
 public class GetFeedsCommandTest
 {
     private readonly Func<long> _generateId;
+    private readonly FeedMarkupGenerator _feedMarkupGenerator;
     private readonly FeedRepository _feedRepo;
     private readonly UserRepository _userRepo;
     private readonly ITelegramBotClient _botMock;
@@ -20,6 +22,7 @@ public class GetFeedsCommandTest
         _feedRepo = new FeedRepository(testFactory.ConnString);
         _userRepo = new UserRepository(testFactory.ConnString);
         _botMock = Substitute.For<ITelegramBotClient>();
+        _feedMarkupGenerator = new FeedMarkupGenerator(testFactory.ConnString);
     }
 
     [Fact]
@@ -30,7 +33,7 @@ public class GetFeedsCommandTest
         // await _userRepo.ChangeState(userId, UserState.AddingFeed);
         // it can be tested with any state since commands are handled regardless of state.
         var input = new GetFeedsCommand(userId);
-        var handler = new GetFeedsCommandHandler(_botMock, _userRepo, _feedRepo);
+        var handler = new GetFeedsCommandHandler(_botMock, _userRepo, _feedMarkupGenerator);
 
         await handler.Handle(input, default);
 
@@ -45,14 +48,14 @@ public class GetFeedsCommandTest
         var userId = _generateId();
         await _userRepo.Add(userId);
         await AddFeedsToUser(userId);
-        var handler = new GetFeedsCommandHandler(_botMock, _userRepo, _feedRepo);
+        var handler = new GetFeedsCommandHandler(_botMock, _userRepo, _feedMarkupGenerator);
         var input = new GetFeedsCommand(userId);
 
         await handler.Handle(input, default);
 
         var actualState = await _userRepo.GetState(userId);
         Assert.Equal(UserState.GettingFeed, actualState);
-        _botMock.ReceivedWithAnyArgs(1).StartReceiving(default!);
+        await _botMock.ReceivedWithAnyArgs(1).SendTextMessageAsync(default!, default!);
     }
 
     private async Task AddFeedsToUser(long userId)

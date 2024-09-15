@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Dapper;
 using Npgsql;
 using FeedTable = WebHaven.DatabaseSchema.Tables.Feeds;
@@ -23,21 +22,6 @@ public class FeedRepository(ConnectionString connString)
         return exists;
     }
 
-    public async Task<ImmutableArray<Feed>> GetUserFeeds(long userId)
-    {
-        var sql =
-            $"""
-                SELECT f.{FeedTable.Columns.Url}, uf.{UsersFeeds.Column.Name}
-                FROM {FeedTable.TableName} f
-                INNER JOIN {UsersFeeds.TableName} uf
-                ON uf.{UsersFeeds.Column.FeedId} = f.{FeedTable.Columns.Id}
-                WHERE uf.{UsersFeeds.Column.UserId} = @userId
-            """;
-        using var db = new NpgsqlConnection(connString);
-        var feeds = await db.QueryAsync<Feed>(sql, new { userId });
-
-        return ImmutableArray.Create(feeds.ToArray());
-    }
     public async Task<Feed?> GetUserFeed(long userId, string name)
     {
         var sql =

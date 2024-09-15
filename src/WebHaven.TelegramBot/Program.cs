@@ -52,6 +52,7 @@ class Program
             container.Register<FeedRepository>(Lifestyle.Scoped);
             container.Register<UserRepository>(Lifestyle.Scoped);
             container.Register<UpdateHandler>(Lifestyle.Scoped);
+            container.Register<FeedMarkupGenerator>(Lifestyle.Scoped);
 
             var assembly = typeof(Program).Assembly;
             container.Register(typeof(IMessageHandler<>), assembly, Lifestyle.Scoped);
