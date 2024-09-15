@@ -4,13 +4,14 @@ You can add and remove feeds through telegram and the bot also sends notificatio
 posts for your feeds.
 
 The bot uses webhooks to listen for updates from telegram api.
-If you want to learn more about webhooks for telegram see this awesome [guide](https://core.telegram.org/bots/webhooks)
+If you want to learn more about webhooks for telegram see this [awesome guide](https://core.telegram.org/bots/webhooks)
 
 The bot consists of three projects:
-1. TelegramBot: This project the main application for the bot.
+1. TelegramBot: This project is the main application for the bot.
 2. DatabaseMigrator: This is a command-line application that executes migrations against the database.
-When you first run the app, make sure you execute the migration from this app first or you can just use
-docker to run the app and everything will set-up automatically.
+   When you first run the app, make sure you execute the migration from this app first or you can just use
+   docker to run the app and everything will be set-up automatically.
+
 
 If you prefer not to use docker. Just go into the directory of the project and run the following command from the terminal:
 
@@ -21,11 +22,16 @@ dotnet run -- migrateup "provide the connection string here"
 note the `--` this is necessary in order for the dotnet cli to understand that everything after it is application arguments
 not options for the cli. When you publish the application you can run it normally without the `--`.
 
+3. DataSchema: this is a simple classlib project that contains table and column names of the database to not hardcode them as 
+   strings since the application uses dapper.
+
 ## Self Host
+
 You can run your own instance easily using docker or even without docker but setting up docker is much easier :).
 
 ### Create a Telegram Bot
-First create a telegram bot through [@BotFather](https://telegram.me/BotFather) and set the necessary commands in order for 
+
+First create a telegram bot through [@BotFather](https://telegram.me/BotFather) and set the necessary commands in order for
 the commands to appear in telegram.
 The bot currently uses the following commands:
 - `/getfeeds`: Display the feeds user added to his account.
@@ -34,7 +40,8 @@ The bot currently uses the following commands:
 After you add the commands, obtain the token for your bot.
 
 ### Get a domain to register the webhook
-The bot uses webhooks to recieve updates from telegram api so you need a public domain to register
+
+The bot uses webhooks to receive updates from telegram api so you need a public domain to register
 the webhook. You can obtain a free one from [ngrok](https://ngrok.com/) or [zrok](https://zrok.io/).
 We will be using ngrok since it is a bit easier to start with.
 
@@ -43,7 +50,8 @@ After you sign-up, go to your dashboard and get an auth token because we will be
 and you need an auth token for that
 
 ### Setting up the environment
-Clone the repository and `cd` to the dir where dockerfiles are located. Create an .env file to use with docker compose.
+
+Clone the repository and `cd` to the dir where dockerfiles are located. Create an .env file in order to run docker compose.
 The .env file should contain the following:
 
 ```
@@ -58,8 +66,8 @@ The .env file should contain the following:
     POSTGRES_PASSWORD=""
 ```
 
-add the telegram token from step 1. Fill in the rest of the variables except for
-TELEGRAMCONFIGURATION__HOSTADDRESS, this will be added later.
+add the telegram token from step 1. Provide the rest of the variables except for
+`TELEGRAMCONFIGURATION__HOSTADDRESS`, this will be added later.
 
 ### Running the app
 
@@ -79,11 +87,10 @@ copy the url in the Forwarding section and paste it into the `TELEGRAMCONFIGURAT
 Make sure you are in the directory where the compose.yaml file is and run the following command
 
 `
-docker compose -f compose.yaml --env-file .env up
+docker compose --env-file .env up
 `
 
-Now we only need to connect the ngrok container to the bridge network of the bot created in the compose file for it to be
-able to forward requests to the bot container.
+Now we only need to connect the ngrok container to the bridge network of the bot created in the compose file for ngrok container to be able to forward requests to the bot container.
 
 To do so run the following command:
 
