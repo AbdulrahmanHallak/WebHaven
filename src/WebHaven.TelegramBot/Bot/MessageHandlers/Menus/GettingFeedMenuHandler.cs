@@ -6,7 +6,7 @@ using WebHaven.TelegramBot.Feeds;
 
 namespace WebHaven.TelegramBot.Bot.MessageHandlers.Menus;
 
-public record GettingFeedMenu(long UserId, string FeedName) : IMessage;
+public record GettingFeedMenu(long UserId, string Msg) : IMessage;
 
 public class GettingFeedMenuHandler(
         ITelegramBotClient bot,
@@ -17,7 +17,7 @@ public class GettingFeedMenuHandler(
 {
     public async Task Handle(GettingFeedMenu input, CancellationToken token)
     {
-        var feed = await feedRepo.GetUserFeed(input.UserId, input.FeedName);
+        var feed = await feedRepo.GetUserFeed(input.UserId, input.Msg);
         if (feed is null)
             return;
 

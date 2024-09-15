@@ -9,6 +9,7 @@ public class UserCommandsHandler(
         ITelegramBotClient bot,
         IMessageHandler<GetFeedsCommand> getFeedsHandler,
         IMessageHandler<AddFeedCommand> addFeedHandler,
+        IMessageHandler<RemoveFeedCommand> removeFeedHandler,
         UserRepository userRepo,
         ILogger<UserCommandsHandler> logger)
         : IMessageHandler<CommandInput>
@@ -28,6 +29,10 @@ public class UserCommandsHandler(
 
             case "/addfeed":
                 await addFeedHandler.Handle(new AddFeedCommand(input.UserId), token);
+                break;
+
+            case "/removefeed":
+                await removeFeedHandler.Handle(new RemoveFeedCommand(input.UserId), token);
                 break;
 
             default:

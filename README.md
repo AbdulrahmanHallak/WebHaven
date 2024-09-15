@@ -30,6 +30,7 @@ the commands to appear in telegram.
 The bot currently uses the following commands:
 - `/getfeeds`: Display the feeds user added to his account.
 - `/addfeed`: Adds a feed to user account
+- `/removefeed`: Removes a feed from user account
 After you add the commands, obtain the token for your bot.
 
 ### Get a domain to register the webhook

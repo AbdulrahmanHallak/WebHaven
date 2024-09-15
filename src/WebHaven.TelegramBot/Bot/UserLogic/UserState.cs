@@ -7,5 +7,6 @@ public enum UserState
 {
     MainMenu,
     AddingFeed,
-    GettingFeed
+    GettingFeed,
+    RemovingFeed
 }

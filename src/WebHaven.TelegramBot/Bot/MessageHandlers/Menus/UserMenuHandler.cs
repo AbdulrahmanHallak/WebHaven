@@ -10,6 +10,7 @@ public class UserMenuHandler(
         UserRepository userRepo,
         IMessageHandler<GettingFeedMenu> gettingFeedHandler,
         IMessageHandler<AddFeedMenu> addFeedHandler,
+        IMessageHandler<RemovingFeedMenu> removeFeedHandler,
         ILogger<UserMenuHandler> logger)
         : IMessageHandler<MenuInput>
 {
@@ -32,6 +33,10 @@ public class UserMenuHandler(
 
             case UserState.MainMenu:
                 await MainMenuHandler(input.UserId, input.Message, token);
+                break;
+
+            case UserState.RemovingFeed:
+                await removeFeedHandler.Handle(new RemovingFeedMenu(input.UserId, input.Message), token);
                 break;
 
             default:

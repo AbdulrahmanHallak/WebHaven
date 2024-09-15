@@ -111,4 +111,17 @@ public class FeedRepository(ConnectionString connString)
             }
         }
     }
+    public async Task RemoveUserFeed(long userId, string feedName)
+    {
+        var sql =
+        $"""
+            DELETE FROM {UsersFeeds.TableName}
+            WHERE {UsersFeeds.Column.UserId} = @userId
+            AND {UsersFeeds.Column.Name} = @feedName
+        """;
+        var cmd = new CommandDefinition(sql, new { userId, feedName });
+
+        using var connection = new NpgsqlConnection(connString);
+        _ = await connection.ExecuteAsync(cmd);
+    }
 }
