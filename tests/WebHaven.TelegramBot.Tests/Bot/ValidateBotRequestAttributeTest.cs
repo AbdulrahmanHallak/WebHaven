@@ -11,7 +11,7 @@ public class ValidateBotRequestAttributeTest
 {
 
     [Fact]
-    public async void Request_with_valid_secret_passes()
+    public void Request_with_valid_secret_passes()
     {
         var (context, configs) = Arrange("My valid secret");
         var filter = new ValidateBotRequestFilter(configs);

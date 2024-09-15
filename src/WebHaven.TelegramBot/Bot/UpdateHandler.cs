@@ -14,6 +14,9 @@ public class UpdateHandler(IMessageHandler<MessageInput> handler, ILogger<Update
             case UpdateType.Message:
                 try
                 {
+                    if(update.Message is null)
+                        throw new NullReferenceException("received a null message");
+
                     await handler.Handle(new MessageInput(update.Message!), token);
                 }
                 catch (Exception ex)
