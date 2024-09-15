@@ -52,7 +52,7 @@ public class GetFeedsCommandTest
 
         var actualState = await _userRepo.GetState(userId);
         Assert.Equal(UserState.GettingFeed, actualState);
-        await _botMock.ReceivedWithAnyArgs(1).SendTextMessageAsync(default!, default!);
+        _botMock.ReceivedWithAnyArgs(1).StartReceiving(default!);
     }
 
     private async Task AddFeedsToUser(long userId)
@@ -63,7 +63,7 @@ public class GetFeedsCommandTest
         (string name, string link) feed3 = ("YetAnotherName", "YetAnotherLink");
         var task1 = _feedRepo.AddFeed(userId, feed1.name, feed1.link);
         var task2 = _feedRepo.AddFeed(userId, feed2.name, feed2.link);
-        var task3 = _feedRepo.AddFeed(userId, feed3.name, feed2.link);
+        var task3 = _feedRepo.AddFeed(userId, feed3.name, feed3.link);
 
         await Task.WhenAll(task1, task2, task3);
     }

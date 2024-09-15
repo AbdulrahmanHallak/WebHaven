@@ -1,4 +1,8 @@
-﻿using NSubstitute;
+﻿using Dapper;
+using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
+using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 using Telegram.Bot;
 using WebHaven.TelegramBot.Bot.MessageHandlers.Menus;
 using WebHaven.TelegramBot.Bot.UserLogic;
@@ -13,6 +17,7 @@ public class AddFeedMenuTest
     private readonly FeedRepository _feedRepo;
     private readonly FeedValidator _validator;
     private readonly ITelegramBotClient _botMock;
+    private readonly ConnectionString _connString;
 
     private readonly Func<long> _generateId;
 
@@ -23,6 +28,7 @@ public class AddFeedMenuTest
         _validator = new FeedValidator();
         _generateId = testFactory.GenerateRandomId;
         _botMock = Substitute.For<ITelegramBotClient>();
+        _connString = testFactory.ConnString;
     }
 
     [Fact]
@@ -30,8 +36,8 @@ public class AddFeedMenuTest
     {
         var userId = _generateId();
         var feedUrl = "https://www.nasa.gov/technology/feed/";
+        var handler = await Arrange(userId);
         var input = new AddFeedMenu(userId, $"some name - {feedUrl}");
-        var handler = await Arrange(input);
 
         await handler.Handle(input, default);
 
@@ -46,8 +52,8 @@ public class AddFeedMenuTest
     public async void Change_state_and_return_when_user_cancel()
     {
         var userId = _generateId();
+        var handler = await Arrange(userId);
         var input = new AddFeedMenu(userId, "Cancel");
-        var handler = await Arrange(input);
 
         await handler.Handle(input, default);
 
@@ -62,8 +68,8 @@ public class AddFeedMenuTest
     public async void Invalid_input_returns_and_preserves_state(string msg)
     {
         var userId = _generateId();
+        var handler = await Arrange(userId);
         var input = new AddFeedMenu(userId, msg);
-        var handler = await Arrange(input);
 
         await handler.Handle(input, default);
 
@@ -72,10 +78,54 @@ public class AddFeedMenuTest
         await _botMock.ReceivedWithAnyArgs(1).SendTextMessageAsync(default!, default!);
     }
 
-    private async Task<AddFeedMenuHandler> Arrange(AddFeedMenu input)
+    [Fact]
+    public async void Add_existing_feed_only_introduce_new_relationship()
     {
-        await _userRepo.Add(input.UserId);
-        await _userRepo.ChangeState(input.UserId, UserState.AddingFeed);
+        var firstUser = _generateId();
+        var secondUser = _generateId();
+        await _userRepo.Add(firstUser);
+        (string name, string url) = ("hello", "https://www.nasa.gov/technology/feed/");
+        await _feedRepo.AddFeed(firstUser, name, url);
+        var handler = await Arrange(secondUser);
+        var input = new AddFeedMenu(secondUser, $"{name} - {url}");
+
+        await handler.Handle(input, default!);
+
+        var feedDuplicates = await GetFeed(url, _connString);
+        var feedId = await _feedRepo.FeedExists(url);
+        var exists = await RelationshipExists(secondUser, (int)feedId, _connString);
+        Assert.Equal(1, feedDuplicates);
+        Assert.True(exists);
+
+
+        async Task<int> GetFeed(string url, ConnectionString connString)
+        {
+            var sql =
+            """
+                SELECT COUNT(*) FROM feeds
+                WHERE url = @url
+            """;
+            using var connection = new NpgsqlConnection(connString);
+            return await connection.QuerySingleAsync<int>(sql, new { url });
+
+        }
+        async Task<bool> RelationshipExists(long userId, int feedId, ConnectionString connString)
+        {
+            var sql =
+            """
+                SELECT EXISTS( SELECT 1 FROM users_feeds WHERE user_id = @userId AND feed_id = @feedId)
+            """;
+
+            using var connection = new NpgsqlConnection(connString);
+            return await connection.ExecuteScalarAsync<bool>(sql, new { userId, feedId });
+        }
+    }
+
+
+    private async Task<AddFeedMenuHandler> Arrange(long userId)
+    {
+        await _userRepo.Add(userId);
+        await _userRepo.ChangeState(userId, UserState.AddingFeed);
         return new AddFeedMenuHandler(_botMock, _feedRepo, _userRepo, _validator);
     }
 }
