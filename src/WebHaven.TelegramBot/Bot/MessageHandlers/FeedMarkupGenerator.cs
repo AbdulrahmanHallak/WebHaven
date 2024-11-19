@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Dapper;
 using Npgsql;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -37,7 +36,7 @@ public class FeedMarkupGenerator(ConnectionString connString)
 
         return new ReplyKeyboardMarkup(result);
     }
-    public async Task<Feed[]> GetUserFeeds(long userId, int offset, int limit)
+    private async Task<Feed[]> GetUserFeeds(long userId, int offset, int limit)
     {
         var sql =
             $"""
