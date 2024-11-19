@@ -6,6 +6,7 @@ public class FeedAggregator
 {
     public async Task<PostsToSend[]?> GetLatestPost(FeedToPoll[] feedsToPoll)
     {
+        // TODO: write test for the worker service.
         var postsToSends = new List<PostsToSend>(feedsToPoll.Length);
 
         foreach (var feed in feedsToPoll)
@@ -27,7 +28,7 @@ public class FeedAggregator
         foreach (var post in feed.Items)
         {
             var summary = new PostSummary(feed.Link, post.Link, post.Title, post.PublishingDate,
-            post.PublishingDateString, post.Description);
+                post.PublishingDateString, post.Description);
             summaries.Add(summary);
         }
 

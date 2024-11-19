@@ -44,11 +44,13 @@ class Program
                 options.Services.AddHttpClient();
             });
             container.Register<ValidateBotRequestFilter>(Lifestyle.Singleton);
-            container.Register<BotConfigs>(() => botConfig, Lifestyle.Singleton);
+            container.Register(() => botConfig, Lifestyle.Singleton);
             container.Register(() => new ConnectionString(connString), Lifestyle.Singleton);
             container.Register<FeedAggregator>(Lifestyle.Singleton);
             container.Register<FeedValidator>(Lifestyle.Singleton);
 
+            // TODO: there is no state in repository so they should be singletons
+            // TODO: auto register repositories.
             container.Register<FeedRepository>(Lifestyle.Scoped);
             container.Register<UserRepository>(Lifestyle.Scoped);
             container.Register<UpdateHandler>(Lifestyle.Scoped);
@@ -79,6 +81,10 @@ class Program
             app.MapControllers();
 
             app.Run();
+
+            // TODO: factor out the orchestration logic in the polling worker into its own service.
+            // TODO: all the repositories by name using simple injector
+            // TODO: refactor disposing of connection and stuff for repositories
 
         }
         catch (Exception ex)
